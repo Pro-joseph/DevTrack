@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+            Schema::create('project', function (Blueprint $table) { 
+$table->id();
+$table->string('title');
+$table->text('description')->nullable(); 
+$table->date('deadline')->nullable();
+$table->enum('status', ['planning', 'active', 'on_hold', 'completed'])->default('planning');
+$table->timestamps();
+$table->softDeletes();
+});
     }
 
     /**
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('project');
     }
 };
