@@ -7,13 +7,15 @@ Schema::create('users', function (Blueprint $table) {
             $table->rememberToken();
             $table->timestamps();
         });
-        
 Schema::create('project', function (Blueprint $table) { 
 $table->id();
 $table->string('title');
 $table->text('description')->nullable(); 
-$table->date('deadline')->nullable(); 
-$table->softDeletes(); // → crée la colonne deleted_at $table->timestamps(); });
+$table->date('deadline')->nullable();
+$table->enum('status', ['planning', 'active', 'on_hold', 'completed'])->default('planning');
+$table->timestamps();
+$table->softDeletes();
+});
 
 
 Schema::create('member', function (Blueprint $table) {
