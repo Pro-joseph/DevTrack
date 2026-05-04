@@ -13,7 +13,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/build/assets/app-D05hqmaw.css">
 
     <script id="tailwind-config">
         tailwind.config = {
@@ -53,7 +53,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-background text-on-surface min-h-screen flex overflow-hidden font-sans">
+<body class="bg-background text-on-surface min-h-screen flex font-sans">
     
     <!-- Navigation Drawer (Sidebar) -->
     <aside class="hidden md:flex flex-col h-screen p-4 gap-2 bg-white border-r w-64 border-outline-variant font-sans text-sm font-medium z-50">
@@ -76,9 +76,10 @@
                 $navLinks = [
                     ['href' => '/dashboard', 'icon' => 'dashboard', 'label' => 'Dashboard'],
                     ['href' => '/projects', 'icon' => 'folder_open', 'label' => 'Projects'],
-                    ['href' => '/tasks', 'icon' => 'assignment_ind', 'label' => 'My Tasks'],
-                    ['href' => '/team', 'icon' => 'badge', 'label' => 'Team Members'],
-                    ['href' => '/archives', 'icon' => 'history', 'label' => 'Archived'],
+                    ['href' => '/project/new', 'icon' => 'add_circle', 'label' => 'New Project'],
+                    ['href' => '/task/new', 'icon' => 'add_circle', 'label' => 'New Task'],
+                    ['href' => '/team', 'icon' => 'badge', 'label' => 'Team'],
+                    ['href' => '/archives', 'icon' => 'history', 'label' => 'Archives'],
                 ];
             @endphp
 
@@ -134,7 +135,7 @@
         </header>
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-surface">
+        <main class="flex-1 overflow-auto p-6 md:p-10 bg-surface">
             @yield('content')
         </main>
 
@@ -144,13 +145,13 @@
                 <span class="material-symbols-outlined">dashboard</span>
                 <span class="text-[10px] font-bold">Dash</span>
             </a>
-            <a href="/projects" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('projects*') ? 'text-primary' : '' }}">
+            <a href="/projects" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('projects*') || request()->is('project*') ? 'text-primary' : '' }}">
                 <span class="material-symbols-outlined">folder</span>
                 <span class="text-[10px] font-bold">Proj</span>
             </a>
-            <a href="/tasks" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('tasks*') ? 'text-primary' : '' }}">
-                <span class="material-symbols-outlined">checklist</span>
-                <span class="text-[10px] font-bold">Tasks</span>
+            <a href="/project/new" class="flex flex-col items-center gap-1 text-primary hover:text-primary transition-all {{ request()->is('project/new') ? 'text-primary' : '' }}">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span class="text-[10px] font-bold">New</span>
             </a>
             <a href="/archives" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('archives') ? 'text-primary' : '' }}">
                 <span class="material-symbols-outlined">history</span>

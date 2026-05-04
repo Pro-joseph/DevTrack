@@ -31,10 +31,14 @@
                         <span class="material-symbols-outlined text-[20px]">filter_list</span>
                         Filter
                     </button>
-                    <button class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
+                    <a href="/project/{{ $id ?? 1 }}/edit" class="bg-white border border-outline-variant text-on-surface px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                        Edit Project
+                    </a>
+                    <a href="/task/new" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">add</span>
                         New Task
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

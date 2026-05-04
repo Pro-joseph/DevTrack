@@ -13,7 +13,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/build/assets/app-D05hqmaw.css">
 
     <script id="tailwind-config">
         tailwind.config = {
@@ -77,7 +77,7 @@
     
     @stack('styles')
 </head>
-<body class="font-sans text-on-background min-h-screen flex flex-col bg-background selection:bg-primary-container selection:text-white">
+<body class="font-sans text-on-background min-h-screen flex flex-col bg-background selection:bg-primary-container selection:text-white overflow-auto">
     
     <!-- Background Ornaments -->
     <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden">

@@ -1,17 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard | DevTrack')
-@section('page-title', 'Dashboard')
+@section('title', 'Projects | DevTrack')
+@section('page-title', 'Projects')
 
 @section('content')
-<!-- Header Section -->
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-lg animate-in fade-in slide-in-from-left duration-500">
     <div>
         <div class="flex items-center gap-3 mb-2">
-            <h2 class="text-3xl font-bold text-on-surface">Active Projects</h2>
-            <span class="px-2.5 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-bold">4 Active</span>
+            <h2 class="text-3xl font-bold text-on-surface">All Projects</h2>
+            <span class="px-2.5 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-bold">4 Projects</span>
         </div>
-        <p class="text-sm text-outline">Manage and track your ongoing development initiatives.</p>
+        <p class="text-sm text-outline">View and manage all your development projects.</p>
     </div>
     <a href="/project/new" class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all active:scale-95">
         <span class="material-symbols-outlined text-[20px]">add</span>
@@ -19,10 +18,8 @@
     </a>
 </div>
 
-<!-- Projects Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-    <!-- Main Focus Project -->
-    <div class="col-span-1 lg:col-span-2 bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+    <a href="/project/1" class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
         
         <div class="flex justify-between items-start mb-6">
@@ -62,10 +59,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </a>
 
-    <!-- Secondary Project Card -->
-    <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
+    <a href="/project/2" class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-tertiary-container/10 text-tertiary rounded-lg flex items-center justify-center">
                 <span class="material-symbols-outlined text-[28px]">security</span>
@@ -87,10 +83,9 @@
                 Due in 4 days
             </div>
         </div>
-    </div>
+    </a>
 
-    <!-- More Project Cards -->
-    <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
+    <a href="/project/3" class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
                 <span class="material-symbols-outlined text-[28px]">palette</span>
@@ -111,15 +106,38 @@
                 Nov 12, 2023
             </div>
         </div>
-    </div>
+    </a>
 
-    <!-- Add New Placeholder -->
-    <div class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-white hover:border-primary transition-all group cursor-pointer group">
+    <a href="/project/4" class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-12 h-12 bg-error/10 text-error rounded-lg flex items-center justify-center">
+                <span class="material-symbols-outlined text-[28px]">code</span>
+            </div>
+            <span class="px-2 py-1 bg-error/10 text-error text-[10px] rounded-md font-bold uppercase tracking-widest">Blocked</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">CRM System</h3>
+        <p class="text-sm text-on-surface-variant mb-6 line-clamp-2">Enterprise-grade customer relationship management module.</p>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center text-xs font-bold uppercase tracking-tight">
+                <span class="text-outline">Tasks</span>
+                <span class="text-on-surface">16 / 24</span>
+            </div>
+            <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                <div class="bg-error h-full rounded-full w-[66%]"></div>
+            </div>
+            <div class="pt-4 flex items-center gap-1.5 text-outline font-bold text-xs">
+                <span class="material-symbols-outlined text-sm">event</span>
+                Oct 24, 2024
+            </div>
+        </div>
+    </a>
+
+    <a href="/project/new" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-white hover:border-primary transition-all group cursor-pointer group">
         <div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-outline group-hover:bg-primary/10 group-hover:text-primary mb-4 transition-all">
             <span class="material-symbols-outlined text-3xl">add_circle</span>
         </div>
         <p class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">Initiate Project</p>
         <p class="text-xs text-outline px-4 mt-2 leading-relaxed">Start a new workflow and assign your core development team.</p>
-    </div>
+    </a>
 </div>
 @endsection
