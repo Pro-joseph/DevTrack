@@ -55,8 +55,8 @@
 </head>
 <body class="bg-background text-on-surface min-h-screen flex font-sans">
     
-    <!-- Navigation Drawer (Sidebar) -->
-    <aside class="hidden md:flex flex-col h-screen p-4 gap-2 bg-white border-r w-64 border-outline-variant font-sans text-sm font-medium z-50">
+    <!-- Navigation Drawer (Sidebar) - Fixed -->
+    <aside class="hidden md:flex flex-col fixed top-0 left-0 h-screen w-64 p-4 gap-2 bg-white border-r border-outline-variant font-sans text-sm font-medium z-50">
         <div class="flex items-center gap-3 mb-8 px-2">
             <span class="material-symbols-outlined text-primary text-2xl">terminal</span>
             <span class="text-primary font-black text-xl tracking-tight">DevTrack</span>
@@ -71,15 +71,14 @@
             </div>
         </div>
 
-        <nav class="flex-1 space-y-1">
+<nav class="flex-1 space-y-1 overflow-y-auto">
             @php
                 $navLinks = [
                     ['href' => '/dashboard', 'icon' => 'dashboard', 'label' => 'Dashboard'],
                     ['href' => '/projects', 'icon' => 'folder_open', 'label' => 'Projects'],
-                    ['href' => '/project/new', 'icon' => 'add_circle', 'label' => 'New Project'],
-                    ['href' => '/task/new', 'icon' => 'add_circle', 'label' => 'New Task'],
-                    ['href' => '/team', 'icon' => 'badge', 'label' => 'Team'],
-                    ['href' => '/archives', 'icon' => 'history', 'label' => 'Archives'],
+                    ['href' => '/tasks', 'icon' => 'checklist', 'label' => 'Tasks'],
+                    ['href' => '/team', 'icon' => 'group', 'label' => 'Team'],
+                    ['href' => '/archives', 'icon' => 'inventory_2', 'label' => 'Archives'],
                 ];
             @endphp
 
@@ -110,8 +109,8 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <!-- Top Bar -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden md:ml-64">
+        <!-- Top Bar - Fixed -->
         <header class="sticky top-0 z-40 flex justify-between items-center w-full px-6 h-16 bg-white border-b border-outline-variant shadow-sm">
             <div class="flex items-center gap-4">
                 <button class="md:hidden p-2 hover:bg-surface-container transition-colors rounded-full">
@@ -135,7 +134,7 @@
         </header>
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-auto p-6 md:p-10 bg-surface">
+        <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-surface">
             @yield('content')
         </main>
 
@@ -149,12 +148,16 @@
                 <span class="material-symbols-outlined">folder</span>
                 <span class="text-[10px] font-bold">Proj</span>
             </a>
-            <a href="/project/new" class="flex flex-col items-center gap-1 text-primary hover:text-primary transition-all {{ request()->is('project/new') ? 'text-primary' : '' }}">
+            <a href="/tasks" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('tasks') ? 'text-primary' : '' }}">
+                <span class="material-symbols-outlined">checklist</span>
+                <span class="text-[10px] font-bold">Tasks</span>
+            </a>
+            <a href="/project/new" class="flex flex-col items-center gap-1 text-primary hover:text-primary transition-all">
                 <span class="material-symbols-outlined">add_circle</span>
                 <span class="text-[10px] font-bold">New</span>
             </a>
             <a href="/archives" class="flex flex-col items-center gap-1 text-outline hover:text-primary transition-all {{ request()->is('archives') ? 'text-primary' : '' }}">
-                <span class="material-symbols-outlined">history</span>
+                <span class="material-symbols-outlined">inventory_2</span>
                 <span class="text-[10px] font-bold">Arch</span>
             </a>
         </nav>

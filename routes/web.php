@@ -27,10 +27,6 @@ Route::middleware('auth')->group(function () {
         return view('projects.index');
     })->name('projects.index');
 
-    Route::get('/project/{id}', function ($id) {
-        return view('project_details');
-    })->name('projects.show');
-
     Route::get('/project/new', function () {
         return view('project-form');
     })->name('projects.create');
@@ -38,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/project/new', function () {
         return redirect()->route('projects.index');
     })->name('projects.store');
+
+    Route::get('/project/{id}', function ($id) {
+        return view('project_details');
+    })->name('projects.show');
 
     Route::get('/project/{id}/edit', function ($id) {
         $project = (object) ['id' => $id, 'title' => '', 'description' => '', 'deadline' => '', 'status' => 'planning'];
@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
     })->name('projects.update');
 
     Route::get('/tasks', function () {
-        return view('projects.index');
+        return view('tasks.index');
     })->name('tasks.index');
 
     Route::get('/team', function () {
