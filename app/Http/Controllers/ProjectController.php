@@ -3,63 +3,103 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Liste de tous les projets
      */
-    public function index()
+    public function index(): View
     {
-        //
+        $projects = Project::with(['owner', 'members', 'tasks'])
+            ->latest()
+            ->paginate(10);
+
+        return view('projects.index', compact('projects'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Formulaire de création
      */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('projects.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Sauvegarder un nouveau projet
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request): RedirectResponse
     {
-        //
+        $project = Project::create([
+            ...$request->validated(),
+            'user_id' => auth()->id(),
+        ]);
+
+        // Ajouter le créateur comme membre avec le rôle 'lead'
+        $project->members()->attach(auth()->id(), ['role' => 'lead']);
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Projet créé avec succès !');
     }
 
     /**
-     * Display the specified resource.
+     * Voir un projet en détail
      */
-    public function show(Project $project)
+    public function show(Project $project): View
     {
-        //
+        $project->load(['owner', 'members', 'tasks.assignee']);
+
+        return view('projects.show', compact('project'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Formulaire de modification
      */
-    public function edit(Project $project)
+    public function edit(Project $project): View
     {
-        //
+        return view('projects.edit', compact('project'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Mettre à jour un projet
      */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        //
+        $project->update($request->validated());
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Projet mis à jour !');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Archiver un projet (SoftDelete)
      */
-    public function destroy(Project $project)
+    public function destroy(Project $project): RedirectResponse
     {
-        //
+        $project->delete();
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Projet archivé !');
+    }
+
+    /**
+     * Restaurer un projet archivé
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $project = Project::withTrashed()->findOrFail($id);
+        $project->restore();
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Projet restauré !');
     }
 }

@@ -4,6 +4,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
 use App\Models\task;
+use App\Http\Controllers\ProjectController;
+
+
+Route::middleware('auth')->group(function () {
+
+    // Dashboard
+    // CRUD Projets
+    Route::resource('projects', ProjectController::class);
+
+    // Actions spéciales
+    Route::patch('projects/{id}/restore', [ProjectController::class, 'restore'])
+         ->name('projects.restore');
+});
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
