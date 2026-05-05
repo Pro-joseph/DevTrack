@@ -1,13 +1,13 @@
-Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
-Schema::create('project', function (Blueprint $table) { 
+-- Schema::create('users', function (Blueprint $table) {
+--             $table->id();
+--             $table->string('name');
+--             $table->string('email')->unique();
+--             $table->timestamp('email_verified_at')->nullable();
+--             $table->string('password');
+--             $table->rememberToken();
+--             $table->timestamps();
+--         });
+Schema::create('projects', function (Blueprint $table) { 
 $table->id();
 $table->string('title');
 $table->text('description')->nullable(); 
@@ -18,7 +18,7 @@ $table->softDeletes();
 });
 
 
-Schema::create('member', function (Blueprint $table) {
+Schema::create('members', function (Blueprint $table) {
     $table->foreignId('project_id')->constrained()->cascadeOnDelete();
     $table->foreignId('user_id')->constrained()->cascadeOnDelete();
     $table->enum('role', ['lead', 'developer']);
@@ -27,7 +27,7 @@ Schema::create('member', function (Blueprint $table) {
 });
 
 
-Schema::create('task', function (Blueprint $table) {
+Schema::create('tasks', function (Blueprint $table) {
     $table->id();
     $table->foreignId('project_id')->constrained()->cascadeOnDelete();
     $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
