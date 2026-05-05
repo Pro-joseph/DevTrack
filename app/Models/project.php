@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -13,11 +14,17 @@ class Project extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title',
+        'user_id',
+        'name',
         'description',
-        'deadline',
         'status',
+        'deadline',
     ];
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function members(): BelongsToMany
     {
@@ -26,22 +33,9 @@ class Project extends Model
                     ->withTimestamps();
     }
 
-    public function leads(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-                    ->withPivot('role')
-                    ->wherePivot('role', 'lead');
-    }
-
-    public function developers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class)
-                    ->withPivot('role')
-                    ->wherePivot('role', 'developer');
-    }
-
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
     }
 }
+?>
