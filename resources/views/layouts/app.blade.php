@@ -135,6 +135,27 @@
 
         <!-- Page Content -->
         <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-surface">
+            @if(session('success'))
+                <div class="mb-4 p-4 bg-secondary/10 text-secondary rounded-lg flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-4 p-4 bg-error/10 text-error rounded-lg flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="mb-4 p-4 bg-error/10 text-error rounded-lg">
+                    <ul class="list-disc list-inside text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             @yield('content')
         </main>
 

@@ -15,17 +15,17 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:255'],
+            'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'status'      => ['required', 'in:planning,active,on_hold,completed'],
-            'deadline'    => ['nullable', 'date', 'after:today'],
+            'status'      => ['sometimes', 'in:planning,active,on_hold,completed'],
+            'deadline'    => ['nullable', 'date'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required'   => 'Le nom du projet est obligatoire.',
+            'title.required'  => 'Le nom du projet est obligatoire.',
             'status.in'       => 'Le statut choisi est invalide.',
             'deadline.after'  => 'La deadline doit être dans le futur.',
         ];

@@ -36,31 +36,6 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/projects', function () {
-        return view('projects.index');
-    })->name('projects.index');
-
-    Route::get('/project/new', function () {
-        return view('project-form');
-    })->name('projects.create');
-
-    Route::post('/project/new', function () {
-        return redirect()->route('projects.index');
-    })->name('projects.store');
-
-    Route::get('/project/{id}', function ($id) {
-        return view('project_details', compact('id'));
-    })->name('projects.show');
-
-    Route::get('/project/{id}/edit', function ($id) {
-        $project = (object) ['id' => $id, 'title' => '', 'description' => '', 'deadline' => '', 'status' => 'planning'];
-        return view('project-form', compact('project'));
-    })->name('projects.edit');
-
-    Route::put('/project/{id}', function ($id) {
-        return redirect()->route('projects.show', ['id' => $id]);
-    })->name('projects.update');
-
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
 
     Route::get('/team', function () {

@@ -38,6 +38,7 @@ class ProjectController extends Controller
         $project = Project::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
+            'status' => $request->input('status', 'planning'),
         ]);
 
         // Ajouter le créateur comme membre avec le rôle 'lead'

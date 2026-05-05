@@ -27,7 +27,7 @@
                     <span class="material-symbols-outlined text-[28px]">folder</span>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-on-surface group-hover:text-primary transition-colors">{{ $project->name }}</h3>
+                    <h3 class="text-xl font-bold text-on-surface group-hover:text-primary transition-colors">{{ $project->title }}</h3>
                     <p class="text-xs text-outline font-medium uppercase tracking-wider">{{ $project->status }}</p>
                 </div>
             </div>
