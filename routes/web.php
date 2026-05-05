@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
     })->name('projects.store');
 
     Route::get('/project/{id}', function ($id) {
-        return view('project_details');
+        return view('project_details', compact('id'));
     })->name('projects.show');
 
     Route::get('/project/{id}/edit', function ($id) {
@@ -48,9 +48,7 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('projects.show', ['id' => $id]);
     })->name('projects.update');
 
-    Route::get('/tasks', function () {
-        return view('tasks.index');
-    })->name('tasks.index');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
 
     Route::get('/team', function () {
         return view('team.index');
@@ -60,20 +58,13 @@ Route::middleware('auth')->group(function () {
         return view('archives.index');
     })->name('archives.index');
 
-    Route::get('/task/new', function () {
-        return view('edit');
-    })->name('tasks.create');
+    Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
-    Route::post('/task/new', function () {
-        return redirect()->route('projects.index');
-    })->name('tasks.store');
+    Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
-    Route::get('/task/{id}/edit', function ($id) {
-        $task = task::findOrFail($id);
-        return view('edit', compact('task'));
-    })->name('tasks.edit');
+    Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
 
-    Route::put('/task/{id}', function ($id) {
-        return redirect()->route('projects.show', ['id' => $id]);
-    })->name('tasks.update');
+    Route::put('/task/{id}', [TaskController::class, 'update'])->name('tasks.update');
+
+    Route::delete('/task/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
