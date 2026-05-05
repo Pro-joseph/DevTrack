@@ -101,7 +101,7 @@ class TaskController extends Controller
             'user_id' => $validated['assigned_to'] ?? null,
         ]);
 
-        return redirect()->route('projects.show', ['id' => $task->project_id])
+        return redirect()->route('projects.show', $task->project)
             ->with('success', 'Task updated successfully!');
     }
 
@@ -110,9 +110,31 @@ class TaskController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
+        $task = Task::withTrashed()->findOrFail($id);
+        $task->forceDelete();
+
+        return redirect()->back()->with('success', 'Task deleted permanently!');
+    }
+
+    /**
+     * Archive a task.
+     */
+    public function archive(int $id): RedirectResponse
+    {
         $task = Task::findOrFail($id);
         $task->delete();
 
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
+        return redirect()->route('tasks.index')->with('success', 'Task archived successfully!');
+    }
+
+    /**
+     * Restore an archived task.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $task = Task::withTrashed()->findOrFail($id);
+        $task->restore();
+
+        return redirect()->route('archives.index')->with('success', 'Task restored successfully!');
     }
 }

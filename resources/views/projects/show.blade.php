@@ -24,9 +24,24 @@
             <div class="flex flex-col items-start md:items-end gap-4">
                 <div class="flex items-center gap-2 text-outline font-bold text-xs uppercase tracking-widest">
                     <span class="material-symbols-outlined text-[18px]">calendar_today</span>
-                    Deadline: <span class="text-on-surface">{{ $project->deadline ? \Carbon\Carbon::parse($project->deadline)->format('M d, Y') : 'Not set' }}</span>
+                    Deadline: <span class="text-on-surface">{{ $project->deadline ? \date('M d, Y', \strtotime($project->deadline)) : 'Not set' }}</span>
                 </div>
                 <div class="flex gap-3">
+                    <form action="{{ route('projects.archive', $project->id) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="bg-white border border-outline-variant text-on-surface px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all flex items-center gap-2" onclick="return confirm('Archive this project?')">
+                            <span class="material-symbols-outlined text-[20px]">archive</span>
+                            Archive
+                        </button>
+                    </form>
+                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-white border border-error/20 text-error px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-error-container hover:border-error transition-all flex items-center gap-2" onclick="return confirm('Delete this project permanently? All tasks will also be deleted.')">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                            Delete
+                        </button>
+                    </form>
                     <a href="{{ route('projects.edit', $project) }}" class="bg-white border border-outline-variant text-on-surface px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">edit</span>
                         Edit Project

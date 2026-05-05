@@ -85,6 +85,18 @@ class ProjectController extends Controller
     public function destroy(Project $project): RedirectResponse
     {
         $project->delete();
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Projet archivé !');
+    }
+
+    /**
+     * Archive a project using POST
+     */
+    public function archive(int $id): RedirectResponse
+    {
+        $project = Project::findOrFail($id);
+        $project->delete();
 
         return redirect()
             ->route('projects.index')

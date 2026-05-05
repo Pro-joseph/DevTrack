@@ -68,6 +68,19 @@
                     <a href="{{ route('tasks.edit', $task->id) }}" class="text-outline hover:text-primary p-2">
                         <span class="material-symbols-outlined text-sm">edit</span>
                     </a>
+                    <form action="{{ route('tasks.archive', $task->id) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="text-outline hover:text-primary p-2" onclick="return confirm('Archive this task?')">
+                            <span class="material-symbols-outlined text-sm">archive</span>
+                        </button>
+                    </form>
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete this task permanently?')">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
                 </div>
             @empty
                 <div class="text-center py-8 text-outline">

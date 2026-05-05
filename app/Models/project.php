@@ -21,6 +21,14 @@ class Project extends Model
         'deadline',
     ];
 
+    protected static function booted()
+    {
+        static::deleting(function ($project) {
+            $project->tasks()->delete();
+            $project->members()->detach();
+        });
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

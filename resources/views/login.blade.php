@@ -15,8 +15,16 @@
 
     <!-- Auth Card -->
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-xl md:p-[40px] transition-all hover:shadow-md">
-        <form action="/login" method="POST" class="space-y-lg">
+        <form action="{{ route('login.post') }}" method="POST" class="space-y-lg">
             @csrf
+
+            @if($errors->any())
+            <div class="bg-error-container/50 border border-error/20 text-on-error-container px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">error</span>
+                <span>{{ $errors->first() }}</span>
+            </div>
+            @endif
+
             <!-- Email Field -->
             <div class="space-y-xs">
                 <label class="text-sm font-medium text-on-surface" for="email">Work Email</label>
@@ -24,8 +32,8 @@
                     <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined text-[20px]">mail</span>
                     </div>
-                    <input class="w-full pl-[44px] pr-md py-md bg-white border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all placeholder:text-outline/60" 
-                           id="email" name="email" placeholder="name@company.com" type="email" required />
+                    <input class="w-full pl-[44px] pr-md py-md bg-white border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all placeholder:text-outline/60 @error('email') border-error focus:ring-error @enderror" 
+                           id="email" name="email" placeholder="name@company.com" type="email" required value="{{ old('email') }}" />
                 </div>
             </div>
 
@@ -39,7 +47,7 @@
                     <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined text-[20px]">lock</span>
                     </div>
-                    <input class="w-full pl-[44px] pr-md py-md bg-white border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all placeholder:text-outline/60" 
+                    <input class="w-full pl-[44px] pr-md py-md bg-white border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all placeholder:text-outline/60 @error('password') border-error focus:ring-error @enderror" 
                            id="password" name="password" placeholder="••••••••" type="password" required />
                 </div>
             </div>

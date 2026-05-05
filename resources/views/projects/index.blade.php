@@ -58,7 +58,7 @@
                 @if($project->deadline)
                     <div class="flex items-center gap-1.5 text-error font-bold text-xs">
                         <span class="material-symbols-outlined text-sm">calendar_today</span>
-                        {{ \Carbon\Carbon::parse($project->deadline)->format('M d') }}
+                        {{ \date('M d', \strtotime($project->deadline)) }}
                     </div>
                 @endif
             </div>
