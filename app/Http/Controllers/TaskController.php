@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\task;
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -34,7 +34,7 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(task $task)
+    public function show(Task $task)
     {
         //
     }
@@ -42,7 +42,7 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(task $task)
+    public function edit(Task $task)
     {
         //
     }
@@ -50,7 +50,7 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, task $task)
+    public function update(Request $request, Task $task)
     {
         //
     }
@@ -58,7 +58,7 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(task $task)
+    public function destroy(Task $task)
     {
         //
     }
