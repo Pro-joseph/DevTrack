@@ -4,19 +4,44 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
-    use SoftDeletes;
-    protected $fillable = ['title', 'description', 'deadline', 'status'];
+    use HasFactory, SoftDeletes;
 
-    public function tasks()
+    protected $fillable = [
+        'title',
+        'description',
+        'deadline',
+        'status',
+    ];
+
+    public function members(): BelongsToMany
     {
-        return $this->hasMany(Task::class);
+        return $this->belongsToMany(User::class)
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
 
-    public function members()
+    public function leads(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'members')->withPivot('role');
+        return $this->belongsToMany(User::class)
+                    ->withPivot('role')
+                    ->wherePivot('role', 'lead');
+    }
+
+    public function developers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+                    ->withPivot('role')
+                    ->wherePivot('role', 'developer');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
     }
 }
