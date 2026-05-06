@@ -58,24 +58,18 @@
                         <input class="w-full pl-8 pr-4 py-1 text-xs bg-transparent border-none focus:ring-0" placeholder="Search members..." type="text"/>
                     </div>
                     <div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
-                        @php
-                            $team = [
-                                ['id' => 1, 'name' => 'Alex Dev', 'role' => 'Lead Developer'],
-                                ['id' => 2, 'name' => 'Sarah Jenkins', 'role' => 'UX Designer'],
-                                ['id' => 3, 'name' => 'Marcus Kim', 'role' => 'Backend Engineer'],
-                            ];
-                        @endphp
-                        
-                        @foreach($team as $member)
+                        @forelse($users as $user)
                         <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group">
-                            <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="checkbox" name="members[]" value="{{ $member['id'] }}"/>
-                            <img alt="{{ $member['name'] }}" class="w-10 h-10 rounded-full border border-outline-variant" src="https://ui-avatars.com/api/?name={{ urlencode($member['name']) }}"/>
+                            <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="checkbox" name="members[]" value="{{ $user->id }}"/>
+                            <img alt="{{ $user->name }}" class="w-10 h-10 rounded-full border border-outline-variant" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}"/>
                             <div class="flex-1">
-                                <p class="text-sm font-bold text-on-surface">{{ $member['name'] }}</p>
-                                <p class="text-xs text-on-surface-variant">{{ $member['role'] }}</p>
+                                <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
+                                <p class="text-xs text-on-surface-variant">{{ $user->email }}</p>
                             </div>
                         </label>
-                        @endforeach
+                        @empty
+                        <p class="p-4 text-sm text-on-surface-variant">No users available</p>
+                        @endforelse
                     </div>
                 </div>
             </div>

@@ -21,6 +21,10 @@ Route::middleware('auth')->group(function () {
         ->name('projects.archive');
     Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
         ->name('projects.destroy');
+
+    // Project Team Members
+    Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
+        ->name('projects.members.index');
 });
 
 Route::get('/', function () {

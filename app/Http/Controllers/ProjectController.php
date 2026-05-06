@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\User;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,8 @@ class ProjectController extends Controller
      */
     public function create(): View
     {
-        return view('projects.create');
+        $users = User::all();
+        return view('projects.create', compact('users'));
     }
 
     /**
@@ -41,8 +43,15 @@ class ProjectController extends Controller
             'status' => $request->input('status', 'planning'),
         ]);
 
-        // Ajouter le créateur comme membre avec le rôle 'lead'
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
+
+        if ($request->has('members')) {
+            foreach ($request->input('members') as $userId) {
+                if ($userId != auth()->id()) {
+                    $project->members()->attach($userId, ['role' => 'developer']);
+                }
+            }
+        }
 
         return redirect()
             ->route('projects.show', $project)
@@ -82,12 +91,14 @@ class ProjectController extends Controller
     /**
      * Archiver un projet (SoftDelete)
      */
-    public function destroy(Project $project): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
-        $project->delete();
+        $project = Project::withTrashed()->findOrFail($id);
+        $project->forceDelete();
+
         return redirect()
-            ->route('projects.index')
-            ->with('success', 'Projet archivé !');
+            ->route('archives.index')
+            ->with('success', 'Projet supprimé définitivement !');
     }
 
     /**
@@ -112,7 +123,7 @@ class ProjectController extends Controller
         $project->restore();
 
         return redirect()
-            ->route('projects.index')
+            ->route('archives.index')
             ->with('success', 'Projet restauré !');
     }
 }

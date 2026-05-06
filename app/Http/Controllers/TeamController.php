@@ -64,7 +64,7 @@ class TeamController extends Controller
         }
 
         $project->members()->attach($user->id, [
-            'role' => $request->role ?? 'member',
+            'role' => $request->role ?? 'developer',
         ]);
 
         return back()->with('success', $user->name . ' added to ' . $project->title . '!');
@@ -81,5 +81,12 @@ class TeamController extends Controller
         $project->members()->detach($request->user_id);
 
         return back()->with('success', 'Member removed from project!');
+    }
+
+    public function projectTeam(Project $project): View
+    {
+        $allUsers = User::where('id', '!=', auth()->id())->get();
+        
+        return view('team.project', compact('project', 'allUsers'));
     }
 }
