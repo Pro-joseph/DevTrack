@@ -15,11 +15,19 @@ class Project extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
+        'title',
         'description',
         'status',
         'deadline',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($project) {
+            $project->tasks()->delete();
+            $project->members()->detach();
+        });
+    }
 
     public function owner(): BelongsTo
     {

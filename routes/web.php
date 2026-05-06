@@ -3,19 +3,28 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
-use App\Models\task;
+use App\Models\Project;
+use App\Models\Task;
 use App\Http\Controllers\ProjectController;
 
 
 Route::middleware('auth')->group(function () {
 
     // Dashboard
-    // CRUD Projets
-    Route::resource('projects', ProjectController::class);
+    // CRUD Projets (excluding destroy since we use custom)
+    Route::resource('projects', ProjectController::class)->except(['destroy']);
 
     // Actions spéciales
     Route::patch('projects/{id}/restore', [ProjectController::class, 'restore'])
-         ->name('projects.restore');
+        ->name('projects.restore');
+    Route::post('projects/{id}/archive', [ProjectController::class, 'archive'])
+        ->name('projects.archive');
+    Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
+        ->name('projects.destroy');
+
+    // Project Team Members
+    Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
+        ->name('projects.members.index');
 });
 
 Route::get('/', function () {
@@ -23,7 +32,15 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $projects = Project::with(['owner', 'members', 'tasks.user'])
+        ->latest()
+        ->get();
+
+    $totalProjects = $projects->count();
+    $activeProjects = $projects->where('status', '!=', 'archived')->count();
+    $totalTasks = Task::count();
+
+    return view('dashboard', compact('projects', 'totalProjects', 'activeProjects', 'totalTasks'));
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware('guest')->group(function () {
@@ -36,40 +53,27 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/projects', function () {
-        return view('projects.index');
-    })->name('projects.index');
-
-    Route::get('/project/new', function () {
-        return view('project-form');
-    })->name('projects.create');
-
-    Route::post('/project/new', function () {
-        return redirect()->route('projects.index');
-    })->name('projects.store');
-
-    Route::get('/project/{id}', function ($id) {
-        return view('project_details', compact('id'));
-    })->name('projects.show');
-
-    Route::get('/project/{id}/edit', function ($id) {
-        $project = (object) ['id' => $id, 'title' => '', 'description' => '', 'deadline' => '', 'status' => 'planning'];
-        return view('project-form', compact('project'));
-    })->name('projects.edit');
-
-    Route::put('/project/{id}', function ($id) {
-        return redirect()->route('projects.show', ['id' => $id]);
-    })->name('projects.update');
-
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
 
-    Route::get('/team', function () {
-        return view('team.index');
-    })->name('team.index');
+    Route::get('/team', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
+    Route::post('/team/add-member', [App\Http\Controllers\TeamController::class, 'addMember'])
+        ->name('team.addMember');
+    Route::post('/team/remove-member', [App\Http\Controllers\TeamController::class, 'removeMember'])
+        ->name('team.removeMember');
 
     Route::get('/archives', function () {
-        return view('archives.index');
-    })->name('archives.index');
+        $archivedProjects = Project::onlyTrashed()
+            ->with(['owner', 'tasks'])
+            ->latest()
+            ->get();
+
+        $archivedTasks = \App\Models\Task::onlyTrashed()
+            ->with(['project', 'user'])
+            ->latest()
+            ->get();
+
+        return view('archives.index', compact('archivedProjects', 'archivedTasks'));
+    })->middleware(['auth'])->name('archives.index');
 
     Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
@@ -79,5 +83,11 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/task/{id}', [TaskController::class, 'update'])->name('tasks.update');
 
+    Route::post('/task/{id}/archive', [TaskController::class, 'archive'])
+        ->name('tasks.archive');
+
     Route::delete('/task/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    Route::patch('/task/{id}/restore', [TaskController::class, 'restore'])
+        ->name('tasks.restore');
 });

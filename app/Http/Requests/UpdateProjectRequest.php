@@ -14,10 +14,10 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['sometimes', 'string', 'max:255'],
+            'title'       => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'status'      => ['sometimes', 'in:planning,active,on_hold,completed'],
-            'deadline'    => ['nullable', 'date', 'after:today'],
+            'deadline'    => ['nullable', 'date'],
         ];
     }
 }

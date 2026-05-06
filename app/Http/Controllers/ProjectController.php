@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\User;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,8 @@ class ProjectController extends Controller
      */
     public function create(): View
     {
-        return view('projects.create');
+        $users = User::all();
+        return view('projects.create', compact('users'));
     }
 
     /**
@@ -38,10 +40,18 @@ class ProjectController extends Controller
         $project = Project::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
+            'status' => $request->input('status', 'planning'),
         ]);
 
-        // Ajouter le créateur comme membre avec le rôle 'lead'
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
+
+        if ($request->has('members')) {
+            foreach ($request->input('members') as $userId) {
+                if ($userId != auth()->id()) {
+                    $project->members()->attach($userId, ['role' => 'developer']);
+                }
+            }
+        }
 
         return redirect()
             ->route('projects.show', $project)
@@ -53,7 +63,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project): View
     {
-        $project->load(['owner', 'members', 'tasks.assignee']);
+        $project->load(['owner', 'members', 'tasks.user']);
 
         return view('projects.show', compact('project'));
     }
@@ -81,8 +91,22 @@ class ProjectController extends Controller
     /**
      * Archiver un projet (SoftDelete)
      */
-    public function destroy(Project $project): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
+        $project = Project::withTrashed()->findOrFail($id);
+        $project->forceDelete();
+
+        return redirect()
+            ->route('archives.index')
+            ->with('success', 'Projet supprimé définitivement !');
+    }
+
+    /**
+     * Archive a project using POST
+     */
+    public function archive(int $id): RedirectResponse
+    {
+        $project = Project::findOrFail($id);
         $project->delete();
 
         return redirect()
@@ -99,7 +123,7 @@ class ProjectController extends Controller
         $project->restore();
 
         return redirect()
-            ->route('projects.index')
+            ->route('archives.index')
             ->with('success', 'Projet restauré !');
     }
 }

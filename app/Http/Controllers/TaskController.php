@@ -28,8 +28,27 @@ class TaskController extends Controller
      */
     public function create(): View
     {
-        $projects = Project::all();
-        $users = User::all();
+        $projects = Project::with(['owner', 'members'])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhereHas('members', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    });
+            })
+            ->get();
+
+        $teamMembers = collect();
+        foreach ($projects as $project) {
+            foreach ($project->members as $member) {
+                if ($member->id !== auth()->id()) {
+                    $teamMembers->push($member);
+                }
+            }
+            if ($project->owner->id !== auth()->id()) {
+                $teamMembers->push($project->owner);
+            }
+        }
+        $users = $teamMembers->unique('id')->values();
 
         return view('edit', compact('projects', 'users'));
     }
@@ -68,8 +87,28 @@ class TaskController extends Controller
     public function edit(int $id): View
     {
         $task = Task::findOrFail($id);
-        $projects = Project::all();
-        $users = User::all();
+
+        $projects = Project::with(['owner', 'members'])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhereHas('members', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    });
+            })
+            ->get();
+
+        $teamMembers = collect();
+        foreach ($projects as $project) {
+            foreach ($project->members as $member) {
+                if ($member->id !== auth()->id()) {
+                    $teamMembers->push($member);
+                }
+            }
+            if ($project->owner->id !== auth()->id()) {
+                $teamMembers->push($project->owner);
+            }
+        }
+        $users = $teamMembers->unique('id')->values();
 
         return view('edit', compact('task', 'projects', 'users'));
     }
@@ -101,7 +140,7 @@ class TaskController extends Controller
             'user_id' => $validated['assigned_to'] ?? null,
         ]);
 
-        return redirect()->route('projects.show', ['id' => $task->project_id])
+        return redirect()->route('projects.show', $task->project)
             ->with('success', 'Task updated successfully!');
     }
 
@@ -110,9 +149,31 @@ class TaskController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
+        $task = Task::withTrashed()->findOrFail($id);
+        $task->forceDelete();
+
+        return redirect()->back()->with('success', 'Task deleted permanently!');
+    }
+
+    /**
+     * Archive a task.
+     */
+    public function archive(int $id): RedirectResponse
+    {
         $task = Task::findOrFail($id);
         $task->delete();
 
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
+        return redirect()->route('tasks.index')->with('success', 'Task archived successfully!');
+    }
+
+    /**
+     * Restore an archived task.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $task = Task::withTrashed()->findOrFail($id);
+        $task->restore();
+
+        return redirect()->route('archives.index')->with('success', 'Task restored successfully!');
     }
 }

@@ -79,6 +79,24 @@
 </head>
 <body class="font-sans text-on-background min-h-screen flex flex-col bg-background selection:bg-primary-container selection:text-white overflow-auto">
     
+    @if(session('success'))
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top duration-300">
+            <span class="material-symbols-outlined text-sm">check_circle</span>
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <div class="bg-error-container border border-error/20 text-on-error-container px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top duration-300">
+            <span class="material-symbols-outlined text-sm">error</span>
+            <span class="text-sm font-medium">{{ session('error') }}</span>
+        </div>
+    </div>
+    @endif
+    
     <!-- Background Ornaments -->
     <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
         <div class="absolute top-20 left-[10%] w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
