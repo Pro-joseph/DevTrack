@@ -35,9 +35,9 @@ $method = $isEdit ? 'PUT' : 'POST';
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="project_id">Project</label>
                     <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="project_id" name="project_id" required>
                         <option value="">Select a project</option>
-                        @foreach($projects ?? [] as $project)
-                            <option value="{{ $project->id }}" {{ $isEdit && $task->project_id == $project->id ? 'selected' : '' }}>
-                                {{ $project->title }}
+                        @foreach($projects ?? [] as $proj)
+                            <option value="{{ $proj->id }}" {{ ($isEdit && $task->project_id == $proj->id) || (isset($selectedProjectId) && $selectedProjectId == $proj->id) ? 'selected' : '' }}>
+                                {{ $proj->title }}
                             </option>
                         @endforeach
                     </select>

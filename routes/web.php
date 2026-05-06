@@ -21,6 +21,10 @@ Route::middleware('auth')->group(function () {
         ->name('projects.archive');
     Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
         ->name('projects.destroy');
+
+    // Project Team Members
+    Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
+        ->name('projects.members.index');
 });
 
 Route::get('/', function () {
@@ -72,6 +76,7 @@ Route::middleware('auth')->group(function () {
     })->middleware(['auth'])->name('archives.index');
 
     Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
+    Route::get('/project/{project}/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
     Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
