@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
     })->middleware(['auth'])->name('archives.index');
 
     Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
+    Route::get('/project/{project}/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
     Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
