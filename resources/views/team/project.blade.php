@@ -57,10 +57,19 @@
     <!-- Add Members -->
     <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
         <h3 class="text-lg font-bold text-on-surface mb-4">Add New Member</h3>
-        @if($allUsers->count() > 0)
+        
+        <form method="GET" action="{{ route('projects.members.index', $project) }}" class="relative mb-4">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span class="material-symbols-outlined text-outline">search</span>
+            </div>
+            <input type="text" name="search" value="{{ $search ?? '' }}" 
+                placeholder="Search users to add..."
+                class="w-full pl-12 pr-4 py-3 bg-surface-container border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+        </form>
+        
+        @if($search && $availableUsers->count() > 0)
         <div class="space-y-3">
-            @foreach($allUsers as $user)
-            @if(!$project->members->contains('id', $user->id))
+            @foreach($availableUsers as $user)
             <div class="flex items-center justify-between p-3 bg-surface-container rounded-lg">
                 <div class="flex items-center gap-3">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" 
@@ -83,11 +92,12 @@
                     </button>
                 </form>
             </div>
-            @endif
             @endforeach
         </div>
+        @elseif($search)
+        <p class="text-sm text-outline">No users found.</p>
         @else
-        <p class="text-sm text-outline">No users available to add.</p>
+        <p class="text-sm text-outline">Search for users to add to this project.</p>
         @endif
     </div>
 </div>

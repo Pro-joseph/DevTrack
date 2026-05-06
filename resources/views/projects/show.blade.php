@@ -36,16 +36,6 @@
                                 class="bg-white border border-outline-variant text-on-surface px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all flex items-center gap-2"
                                 onclick="return confirm('Archive this project?')">
                                 <span class="material-symbols-outlined text-[20px]">archive</span>
-                                Archive
-                            </button>
-                        </form>
-                        <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                class="bg-white border border-error/20 text-error px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-error-container hover:border-error transition-all flex items-center gap-2"
-                                onclick="return confirm('Delete this project permanently? All tasks will also be deleted.')">
-                                <span class="material-symbols-outlined text-[20px]">delete</span>
                                 Delete
                             </button>
                         </form>
@@ -54,7 +44,7 @@
                             <span class="material-symbols-outlined text-[20px]">edit</span>
                             Edit Project
                         </a>
-                        <a href="{{ route('tasks.create') }}"
+                        <a href="{{ route('tasks.create', $project->id) }}"
                             class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">add</span>
                             New Task
@@ -96,7 +86,8 @@
                         class="bg-white border border-outline-variant p-6 rounded-xl shadow-sm hover:shadow-md hover:translate-x-1 transition-all group">
                         <div class="flex justify-between items-start mb-6">
                             <div class="space-y-3">
-                                <a href="{{ route('tasks.edit', $task->id) }}" class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
+                                <a href="{{ route('tasks.edit', $task->id) }}"
+                                    class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
                                     {{ $task->title }}</a>
                                 <div class="flex flex-wrap gap-2">
                                     @if ($task->priority)
@@ -106,7 +97,8 @@
                                 </div>
                             </div>
                             <button class="text-outline hover:text-on-surface transition-colors p-1">
-                                <a href="{{ route('tasks.edit', $task->id) }}" class="text-outline hover:text-primary transition-colors">
+                                <a href="{{ route('tasks.edit', $task->id) }}"
+                                    class="text-outline hover:text-primary transition-colors">
                                     <span class="material-symbols-outlined">edit</span>
                                 </a>
                             </button>

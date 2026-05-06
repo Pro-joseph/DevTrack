@@ -63,11 +63,12 @@
         </div>
 
         <div class="flex items-center gap-3 px-2 py-4 mb-4 bg-surface-container-low rounded-xl">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuyjAEcxel921Lnh_9ZJW20-u11WimnpWiTnOIX25sHLGSkwvu4NL_YnzawpAryXl2pQ0039KdNMFy7W8gyC1LdUvoY7PTOCweu_uMELIApR1J6ik61OezJtwSaovffRMfZDqaQYltBV8yuvYoeL_RoVNSUays1sxLG7TBRD7XCk2PE6Ij-VrTw4nH-kI4rYvBn0fj29Rx7BEaHa4ISmfOCUHmjQmgy6FKpqH81U1HZAzYiAmsKid5-vHy39VGoz3esWXx3-KVmZCW" 
-                 alt="User" class="w-10 h-10 rounded-full object-cover">
+            @php $user = auth()->user(); @endphp
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" 
+                 alt="{{ $user->name }}" class="w-10 h-10 rounded-full object-cover">
             <div>
-                <div class="text-on-surface font-bold text-sm">Alex Dev</div>
-                <div class="text-outline text-xs">Project Lead</div>
+                <div class="text-on-surface font-bold text-sm">{{ $user->name }}</div>
+                <div class="text-outline text-xs">{{ $user->email }}</div>
             </div>
         </div>
 
@@ -128,8 +129,9 @@
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
                 </button>
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuyjAEcxel921Lnh_9ZJW20-u11WimnpWiTnOIX25sHLGSkwvu4NL_YnzawpAryXl2pQ0039KdNMFy7W8gyC1LdUvoY7PTOCweu_uMELIApR1J6ik61OezJtwSaovffRMfZDqaQYltBV8yuvYoeL_RoVNSUays1sxLG7TBRD7XCk2PE6Ij-VrTw4nH-kI4rYvBn0fj29Rx7BEaHa4ISmfOCUHmjQmgy6FKpqH81U1HZAzYiAmsKid5-vHy39VGoz3esWXx3-KVmZCW" 
-                     alt="Avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover">
+                @php $user = auth()->user(); @endphp
+                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" 
+                     alt="{{ $user->name }}" class="w-8 h-8 rounded-full border border-outline-variant object-cover">
             </div>
         </header>
 

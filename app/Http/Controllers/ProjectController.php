@@ -28,8 +28,29 @@ class ProjectController extends Controller
      */
     public function create(): View
     {
-        $users = User::all();
-        return view('projects.create', compact('users'));
+        $projects = Project::with(['owner', 'members'])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhereHas('members', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    });
+            })
+            ->get();
+
+        $teamMembers = collect();
+        foreach ($projects as $project) {
+            foreach ($project->members as $member) {
+                if ($member->id !== auth()->id()) {
+                    $teamMembers->push($member);
+                }
+            }
+            if ($project->owner->id !== auth()->id()) {
+                $teamMembers->push($project->owner);
+            }
+        }
+        $users = $teamMembers->unique('id')->values();
+
+        return view('project-form', compact('users'));
     }
 
     /**
