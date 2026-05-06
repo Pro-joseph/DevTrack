@@ -33,12 +33,13 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     $projects = Project::with(['owner', 'members', 'tasks.user'])
+        ->whereHas('members', fn($q) => $q->where('user_id', auth()->id()))
         ->latest()
         ->get();
 
     $totalProjects = $projects->count();
     $activeProjects = $projects->where('status', '!=', 'archived')->count();
-    $totalTasks = Task::count();
+    $totalTasks = $projects->flatMap->tasks->count();
 
     return view('dashboard', compact('projects', 'totalProjects', 'activeProjects', 'totalTasks'));
 })->middleware(['auth'])->name('dashboard');
