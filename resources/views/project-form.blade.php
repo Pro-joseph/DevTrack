@@ -65,24 +65,18 @@ $isEdit = isset($project) && $project;
                         <input class="w-full pl-8 pr-4 py-1 text-xs bg-transparent border-none focus:ring-0" placeholder="Search members..." type="text"/>
                     </div>
                     <div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
-                        @php
-                            $team = [
-                                ['id' => 1, 'name' => 'Alex Dev', 'role' => 'Lead Developer', 'img' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuD_52dK_afz--YqBRZ_TfcjTF513Zk8v-q9mFsRTxR1eIDmi4knGOcGsYwpRi2kCe2frTBrXgE8RCtZFoKU5npNWyYjItk9bW-LiWnj2KmtxGKREonemlQ6a3_01vJ5aB4WHC58xiz5v1qtxI6J77GoJtVCBX9roaEN-R0R2CDmVfwNNgIOlMPWyLZCWSdpzwzGlGtOr_xAVnL2562pswPTlgJtfQGql7yHd_9wgmB0me7KXxcpaydP3VN7spUAkUVJ63JUSA8BEvz3'],
-                                ['id' => 2, 'name' => 'Sarah Jenkins', 'role' => 'UX Designer', 'img' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBfaeZ8JEJxmWFFLnP12mVagn1SpGY9IaAw7LYduCIb-oESKF0Aj-_IkpbnlWSXHpDrsuUt-z7wmIG9Jk6Jm1HS-FchcZ2bv0Be44Q_0IgiZo7vECvpeay2BffMf9gwO4DW_Lw86pkD7VTDpUf65Sunohy6jdVPDrpTFv9gAsKLG7z5SvUv9tLVZBFIhxS1UySa0eAgjuDy0GpMGrTZ-6EOofBvKY1aOJ-l3UNrXk5bW_a0-eji6wQmX86XPiSDZraTazQV7BI_VNck'],
-                                ['id' => 3, 'name' => 'Marcus Kim', 'role' => 'Backend Engineer', 'img' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBkh3sexpxTbIUU-zOnGyVOqB6w208Ln7sQr_nAybLWC1jH2ONJpfUKIDurepaEDi0BeBwoGW27VU5DtZAU1S2ZDnR0QA2PF0NyYwH-nnDmVtWH_Vg8bnyuNmKQ_GKI8U7-JeRWAvNYWsJbIlrVeEvfSEn4tRVUScv7ZyiainQ6PRBSBT5nM3Yg01FZLrTFZXcW5rxo9pjtTKecrkJPuiqNZEOaqwU3Dy8tCaUSbLMtlKyEsmZt6G_sc7Ekl-veLW96AOoil1Go0DCM'],
-                            ];
-                        @endphp
-                        
-                        @foreach($team as $member)
+                        @forelse($users ?? [] as $user)
                         <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group">
-                            <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="checkbox" name="members[]" value="{{ $member['id'] }}"/>
-                            <img alt="{{ $member['name'] }}" class="w-10 h-10 rounded-full border border-outline-variant" src="{{ $member['img'] }}"/>
+                            <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="checkbox" name="members[]" value="{{ $user->id }}"/>
+                            <img alt="{{ $user->name }}" class="w-10 h-10 rounded-full border border-outline-variant" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random"/>
                             <div class="flex-1">
-                                <p class="text-sm font-bold text-on-surface">{{ $member['name'] }}</p>
-                                <p class="text-xs text-on-surface-variant">{{ $member['role'] }}</p>
+                                <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
+                                <p class="text-xs text-on-surface-variant">{{ $user->email }}</p>
                             </div>
                         </label>
-                        @endforeach
+                        @empty
+                        <div class="p-4 text-center text-outline text-sm">No team members available</div>
+                        @endforelse
                     </div>
                 </div>
             </div>
