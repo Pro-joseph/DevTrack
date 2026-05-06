@@ -38,10 +38,9 @@ class ProjectController extends Controller
         $project = Project::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
-            'status' => $request->input('status', 'planning'),
         ]);
 
-        // Ajouter le créateur comme membre avec le rôle 'lead'
+        // Créateur devient automatiquement lead
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
 
         return redirect()
@@ -54,7 +53,9 @@ class ProjectController extends Controller
      */
     public function show(Project $project): View
     {
-        $project->load(['owner', 'members', 'tasks.user']);
+        $this->authorize('view', $project);
+
+        $project->load(['owner', 'members', 'tasks.assignee']);
 
         return view('projects.show', compact('project'));
     }
@@ -64,6 +65,8 @@ class ProjectController extends Controller
      */
     public function edit(Project $project): View
     {
+        $this->authorize('update', $project);
+
         return view('projects.edit', compact('project'));
     }
 
@@ -72,6 +75,8 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
+        $this->authorize('update', $project);
+
         $project->update($request->validated());
 
         return redirect()
@@ -84,18 +89,8 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project): RedirectResponse
     {
-        $project->delete();
-        return redirect()
-            ->route('projects.index')
-            ->with('success', 'Projet archivé !');
-    }
+        $this->authorize('delete', $project);
 
-    /**
-     * Archive a project using POST
-     */
-    public function archive(int $id): RedirectResponse
-    {
-        $project = Project::findOrFail($id);
         $project->delete();
 
         return redirect()
@@ -109,6 +104,9 @@ class ProjectController extends Controller
     public function restore(int $id): RedirectResponse
     {
         $project = Project::withTrashed()->findOrFail($id);
+
+        $this->authorize('restore', $project);
+
         $project->restore();
 
         return redirect()

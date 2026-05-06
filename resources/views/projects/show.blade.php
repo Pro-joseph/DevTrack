@@ -20,14 +20,15 @@
                 <p class="text-on-surface-variant max-w-2xl text-base leading-relaxed">
                     {{ $project->description ?? 'No description provided.' }}
                 </p>
-            </div>
+            </div>           
             <div class="flex flex-col items-start md:items-end gap-4">
                 <div class="flex items-center gap-2 text-outline font-bold text-xs uppercase tracking-widest">
                     <span class="material-symbols-outlined text-[18px]">calendar_today</span>
                     Deadline: <span class="text-on-surface">{{ $project->deadline ? \date('M d, Y', \strtotime($project->deadline)) : 'Not set' }}</span>
                 </div>
                 <div class="flex gap-3">
-                    <form action="{{ route('projects.archive', $project->id) }}" method="POST" class="inline">
+                  @can('delete', $project)
+                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="bg-white border border-outline-variant text-on-surface px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-surface-container-low transition-all flex items-center gap-2" onclick="return confirm('Archive this project?')">
                             <span class="material-symbols-outlined text-[20px]">archive</span>
@@ -46,7 +47,7 @@
                         <span class="material-symbols-outlined text-[20px]">edit</span>
                         Edit Project
                     </a>
-                    <a href="{{ route('tasks.create') }}" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
+                    <a href="{{ route('projects.tasks.create', $project) }}" class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">add</span>
                         New Task
                     </a>
@@ -59,10 +60,10 @@
             <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
             <div class="flex justify-between items-center mb-4">
                 <span class="text-sm font-bold text-on-surface uppercase tracking-wider">Overall Project Progress</span>
-                <span class="text-xl font-black text-primary">{{ $project->tasks->count() > 0 ? round(($project->tasks->where('status', 'completed')->count() / $project->tasks->count()) * 100) : 0 }}%</span>
+                <span class="text-xl font-black text-primary">{{ $project->tasks->count() > 0 ? round(($project->tasks->where('status', 'done')->count() / $project->tasks->count()) * 100) : 0 }}%</span>
             </div>
             <div class="w-full bg-surface-container-high rounded-full h-3">
-                <div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: {{ $project->tasks->count() > 0 ? ($project->tasks->where('status', 'completed')->count() / $project->tasks->count()) * 100 : 0 }}%"></div>
+                <div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: {{ $project->tasks->count() > 0 ? ($project->tasks->where('status', 'done')->count() / $project->tasks->count()) * 100 : 0 }}%"></div>
             </div>
         </div>
     </section>
@@ -73,7 +74,7 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-on-surface">Open Tasks</h3>
-                <span class="bg-primary/5 text-primary px-3 py-1 rounded-full text-xs font-bold">{{ $project->tasks->where('status', '!=', 'completed')->count() }} Remaining</span>
+                <span class="bg-primary/5 text-primary px-3 py-1 rounded-full text-xs font-bold">{{ $project->tasks->where('status', '!=', 'done')->count() }} Remaining</span>
             </div>
 
             @forelse($project->tasks as $task)
@@ -132,7 +133,7 @@
                         </div>
                         <div>
                             <div class="text-[10px] text-outline font-bold uppercase tracking-widest mb-1">Done</div>
-                            <div class="text-2xl font-black text-primary">{{ $project->tasks->where('status', 'completed')->count() }}</div>
+                            <div class="text-2xl font-black text-primary">{{ $project->tasks->where('status', 'done')->count() }}</div>
                         </div>
                     </div>
                 </div>
@@ -142,7 +143,7 @@
             <section class="bg-white border border-outline-variant p-8 rounded-2xl shadow-sm">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-sm font-bold text-on-surface uppercase tracking-widest">Team</h3>
-                    <button class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline">Manage</button>
+                    <a href="{{ route('projects.members.index', $project) }}" class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline">Manage</a>
                 </div>
                 <div class="space-y-5">
                     @forelse($project->members as $member)

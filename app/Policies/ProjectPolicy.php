@@ -4,63 +4,66 @@ namespace App\Policies;
 
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
-    /**
-     * Determine whether the user can view any models.
+    /*
+     * Voir la liste(utilisateurs connectés seulement)
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Voir ce projet (membres seulement)
      */
     public function view(User $user, Project $project): bool
     {
-        return false;
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->exists();
     }
 
     /**
-     * Determine whether the user can create models.
+     * Créer un projet (utilisateurs connectés seulement)
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Modifier ce projet(Lead du projet)
      */
     public function update(User $user, Project $project): bool
     {
-        return false;
+        return $this->isLead($user, $project);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Archiver ce projet(Lead du projet)
      */
     public function delete(User $user, Project $project): bool
     {
-        return false;
+        return $this->isLead($user, $project);
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Restaurer ce projet (Lead du projet)
      */
     public function restore(User $user, Project $project): bool
     {
-        return false;
+        return $this->isLead($user, $project);
     }
-
-    /**
-     * Determine whether the user can permanently delete the model.
+  /**
+     * Vérifie si l'utilisateur est le lead de ce projet
      */
-    public function forceDelete(User $user, Project $project): bool
+    private function isLead(User $user, Project $project): bool
     {
-        return false;
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->wherePivot('role', 'lead')
+                       ->exists();
     }
 }
