@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TasksRequest;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
@@ -26,7 +27,7 @@ class TaskController extends Controller
     /**
      * Show the form for creating a new task.
      */
-    public function create(): View
+    public function create(?Project $project = null): View
     {
         $projects = Project::with(['owner', 'members'])
             ->where(function ($query) {
@@ -38,35 +39,29 @@ class TaskController extends Controller
             ->get();
 
         $teamMembers = collect();
-        foreach ($projects as $project) {
-            foreach ($project->members as $member) {
+        foreach ($projects as $projectItem) {
+            foreach ($projectItem->members as $member) {
                 if ($member->id !== auth()->id()) {
                     $teamMembers->push($member);
                 }
             }
-            if ($project->owner->id !== auth()->id()) {
-                $teamMembers->push($project->owner);
+            if ($projectItem->owner->id !== auth()->id()) {
+                $teamMembers->push($projectItem->owner);
             }
         }
         $users = $teamMembers->unique('id')->values();
 
-        return view('edit', compact('projects', 'users'));
+        $selectedProjectId = $project?->id ?? $projects->first()?->id;
+
+        return view('edit', compact('projects', 'users', 'selectedProjectId'));
     }
 
     /**
      * Store a newly created task in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(TasksRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'project_id' => 'required|exists:projects,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:todo,in_progress,done',
-            'deadline' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-        ]);
+        $validated = $request->validated();
 
         $task = Task::create([
             'title' => $validated['title'],
@@ -116,19 +111,10 @@ class TaskController extends Controller
     /**
      * Update the specified task in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(TasksRequest $request, int $id): RedirectResponse
     {
         $task = Task::findOrFail($id);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'project_id' => 'required|exists:projects,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:todo,in_progress,done',
-            'deadline' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-        ]);
+        $validated = $request->validated();
 
         $task->update([
             'title' => $validated['title'],

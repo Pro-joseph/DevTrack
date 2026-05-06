@@ -83,10 +83,21 @@ class TeamController extends Controller
         return back()->with('success', 'Member removed from project!');
     }
 
-    public function projectTeam(Project $project): View
+    public function projectTeam(Request $request, Project $project): View
     {
-        $allUsers = User::where('id', '!=', auth()->id())->get();
+        $search = $request->get('search', '');
         
-        return view('team.project', compact('project', 'allUsers'));
+        $allUsers = User::where('id', '!=', auth()->id())
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->get();
+        
+        $availableUsers = $allUsers->filter(fn($user) => !$project->members->contains('id', $user->id));
+        
+        return view('team.project', compact('project', 'allUsers', 'availableUsers', 'search'));
     }
 }
