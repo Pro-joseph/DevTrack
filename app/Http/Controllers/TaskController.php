@@ -28,8 +28,27 @@ class TaskController extends Controller
      */
     public function create(): View
     {
-        $projects = Project::all();
-        $users = User::all();
+        $projects = Project::with(['owner', 'members'])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhereHas('members', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    });
+            })
+            ->get();
+
+        $teamMembers = collect();
+        foreach ($projects as $project) {
+            foreach ($project->members as $member) {
+                if ($member->id !== auth()->id()) {
+                    $teamMembers->push($member);
+                }
+            }
+            if ($project->owner->id !== auth()->id()) {
+                $teamMembers->push($project->owner);
+            }
+        }
+        $users = $teamMembers->unique('id')->values();
 
         return view('edit', compact('projects', 'users'));
     }
@@ -68,8 +87,28 @@ class TaskController extends Controller
     public function edit(int $id): View
     {
         $task = Task::findOrFail($id);
-        $projects = Project::all();
-        $users = User::all();
+
+        $projects = Project::with(['owner', 'members'])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhereHas('members', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    });
+            })
+            ->get();
+
+        $teamMembers = collect();
+        foreach ($projects as $project) {
+            foreach ($project->members as $member) {
+                if ($member->id !== auth()->id()) {
+                    $teamMembers->push($member);
+                }
+            }
+            if ($project->owner->id !== auth()->id()) {
+                $teamMembers->push($project->owner);
+            }
+        }
+        $users = $teamMembers->unique('id')->values();
 
         return view('edit', compact('task', 'projects', 'users'));
     }

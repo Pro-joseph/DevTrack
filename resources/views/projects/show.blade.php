@@ -70,11 +70,11 @@
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-sm font-bold text-on-surface uppercase tracking-wider">Overall Project Progress</span>
                     <span
-                        class="text-xl font-black text-primary">{{ $project->tasks->count() > 0 ? round(($project->tasks->where('status', 'completed')->count() / $project->tasks->count()) * 100) : 0 }}%</span>
+                        class="text-xl font-black text-primary">{{ $project->tasks->count() > 0 ? round(($project->tasks->where('status', 'done')->count() / $project->tasks->count()) * 100) : 0 }}%</span>
                 </div>
                 <div class="w-full bg-surface-container-high rounded-full h-3">
                     <div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
-                        style="width: {{ $project->tasks->count() > 0 ? ($project->tasks->where('status', 'completed')->count() / $project->tasks->count()) * 100 : 0 }}%">
+                        style="width: {{ $project->tasks->count() > 0 ? ($project->tasks->where('status', 'done')->count() / $project->tasks->count()) * 100 : 0 }}%">
                     </div>
                 </div>
             </div>
@@ -87,17 +87,17 @@
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-bold text-on-surface">Open Tasks</h3>
                     <span
-                        class="bg-primary/5 text-primary px-3 py-1 rounded-full text-xs font-bold">{{ $project->tasks->where('status', '!=', 'completed')->count() }}
+                        class="bg-primary/5 text-primary px-3 py-1 rounded-full text-xs font-bold">{{ $project->tasks->where('status', '!=', 'done')->count() }}
                         Remaining</span>
                 </div>
 
                 @forelse($project->tasks as $task)
                     <div
-                        class="bg-white border border-outline-variant p-6 rounded-xl shadow-sm hover:shadow-md hover:translate-x-1 transition-all group cursor-pointer">
+                        class="bg-white border border-outline-variant p-6 rounded-xl shadow-sm hover:shadow-md hover:translate-x-1 transition-all group">
                         <div class="flex justify-between items-start mb-6">
                             <div class="space-y-3">
-                                <h4 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
-                                    {{ $task->title }}</h4>
+                                <a href="{{ route('tasks.edit', $task->id) }}" class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
+                                    {{ $task->title }}</a>
                                 <div class="flex flex-wrap gap-2">
                                     @if ($task->priority)
                                         <span
@@ -106,7 +106,9 @@
                                 </div>
                             </div>
                             <button class="text-outline hover:text-on-surface transition-colors p-1">
-                                <span class="material-symbols-outlined">more_vert</span>
+                                <a href="{{ route('tasks.edit', $task->id) }}" class="text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </a>
                             </button>
                         </div>
                         <div class="flex items-center justify-between border-t border-outline-variant/30 pt-4">
@@ -159,7 +161,7 @@
                             <div>
                                 <div class="text-[10px] text-outline font-bold uppercase tracking-widest mb-1">Done</div>
                                 <div class="text-2xl font-black text-primary">
-                                    {{ $project->tasks->where('status', 'completed')->count() }}</div>
+                                    {{ $project->tasks->where('status', 'done')->count() }}</div>
                             </div>
                         </div>
                     </div>
