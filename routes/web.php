@@ -21,6 +21,10 @@ Route::middleware('auth')->group(function () {
         ->name('projects.archive');
     Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
         ->name('projects.destroy');
+
+    // Project Team Members
+    Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
+        ->name('projects.members.index');
 });
 
 Route::get('/', function () {
@@ -29,12 +33,13 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     $projects = Project::with(['owner', 'members', 'tasks.user'])
+        ->whereHas('members', fn($q) => $q->where('user_id', auth()->id()))
         ->latest()
         ->get();
 
     $totalProjects = $projects->count();
     $activeProjects = $projects->where('status', '!=', 'archived')->count();
-    $totalTasks = Task::count();
+    $totalTasks = $projects->flatMap->tasks->count();
 
     return view('dashboard', compact('projects', 'totalProjects', 'activeProjects', 'totalTasks'));
 })->middleware(['auth'])->name('dashboard');

@@ -8,7 +8,7 @@ use App\Models\User;
 class ProjectPolicy
 {
     /*
-     * Voir la liste(utilisateurs connectés seulement)
+     * Voir la liste(utilisateurs connectés)
      */
     public function viewAny(User $user): bool
     {

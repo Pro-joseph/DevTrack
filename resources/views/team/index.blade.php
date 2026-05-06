@@ -51,8 +51,7 @@
                         <option value="{{ $project->id }}">{{ $project->title }}</option>
                         @endforeach
                     </select>
-                    <input type="text" name="role" placeholder="Role (optional)" 
-                        class="text-sm border border-outline-variant rounded-lg px-3 py-2 w-32">
+                    <input type="hidden" name="role" value="developer">
                     <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container transition-colors">
                         Add
                     </button>

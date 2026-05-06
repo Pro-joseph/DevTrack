@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\User;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\RedirectResponse;
@@ -11,11 +12,16 @@ use Illuminate\View\View;
 class ProjectController extends Controller
 {
     /**
-     * Liste de tous les projets
+     * Liste des projets où l'utilisateur est membre
      */
     public function index(): View
     {
+        $this->authorize('viewAny', Project::class);
+
         $projects = Project::with(['owner', 'members', 'tasks'])
+            ->whereHas('members', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
             ->latest()
             ->paginate(10);
 
@@ -27,7 +33,11 @@ class ProjectController extends Controller
      */
     public function create(): View
     {
-        return view('projects.create');
+        $this->authorize('create', Project::class);
+
+        $users = User::all();
+
+        return view('projects.create', compact('users'));
     }
 
     /**
@@ -35,6 +45,8 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', Project::class);
+
         $project = Project::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
@@ -42,6 +54,15 @@ class ProjectController extends Controller
 
         // Créateur devient automatiquement lead
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
+
+        // Ajouter les membres sélectionnés comme developers
+        if ($request->has('members')) {
+            $members = collect($request->input('members'))
+                ->reject(fn($userId) => $userId == auth()->id())
+                ->mapWithKeys(fn($userId) => [$userId => ['role' => 'developer']]);
+
+            $project->members()->attach($members);
+        }
 
         return redirect()
             ->route('projects.show', $project)
