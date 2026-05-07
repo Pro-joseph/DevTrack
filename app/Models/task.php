@@ -25,4 +25,13 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
+    public function getFormattedStatusAttribute(): string
+{
+    return match($this->status) {
+        'todo'        => 'To Do',
+        'in_progress' => 'In Progress',
+        'done'        => 'Done',
+        default       => ucfirst($this->status),
+    };
+}
 }

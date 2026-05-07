@@ -1,8 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\TaskController;
-
-Route::apiResource('projects.tasks', TaskController::class);
-
+Route::resource('projects.tasks', TaskController::class)
+     ->only(['index', 'show']);

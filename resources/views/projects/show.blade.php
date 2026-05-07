@@ -122,15 +122,7 @@
                         </div>
                         <div class="flex items-center gap-4">
                             @can('updateStatus', $task)
-                            <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PUT')
-                                <select name="status" onchange="this.form.submit()" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                    <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
-                                    <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                    <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
-                                </select>
-                            </form>
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $task->status }}</span>
                             @else
                             <span
                                 class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $task->status }}</span>
