@@ -11,11 +11,13 @@
                 <h2 class="text-3xl font-bold text-on-surface">My Tasks</h2>
                 <p class="text-sm text-outline mt-1">You have {{ $tasks->count() }} tasks across all projects</p>
             </div>
+            @can('create', App\Models\Project::class)
             <a href="{{ route('tasks.create') }}"
                 class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-primary-container transition-all">
                 <span class="material-symbols-outlined text-[20px]">add</span>
                 Add Task
             </a>
+            @endcan
         </div>
 
         <!-- Task Stats -->
@@ -65,9 +67,24 @@
                         {{ $task->user->name ?? 'Unassigned' }}
                     </div>
 
+                    @can('updateStatus', $task)
+                    <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PUT')
+                        <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white">
+                            <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
+                        </select>
+                    </form>
+                    @endcan
+
+                    @can('update', $task)
                     <a href="{{ route('tasks.edit', $task->id) }}" class="text-outline hover:text-primary p-2">
                         <span class="material-symbols-outlined text-sm">edit</span>
                     </a>
+                    @endcan
+                    @can('delete', $task)
                     <form action="{{ route('tasks.archive', $task->id) }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="text-outline hover:text-primary p-2" onclick="return confirm('Archive this task?')">
@@ -81,6 +98,7 @@
                             <span class="material-symbols-outlined text-sm">delete</span>
                         </button>
                     </form>
+                    @endcan
                 </div>
             @empty
                 <div class="text-center py-8 text-outline">

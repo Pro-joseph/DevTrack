@@ -48,12 +48,10 @@ class TaskPolicy
      */
     public function updateStatus(User $user, Task $task): bool
     {
-        // Le lead 
         if ($this->isLead($user, $task->project)) {
             return true;
         }
 
-        // Le developer assigné 
         return $task->assigned_to === $user->id;
     }
 

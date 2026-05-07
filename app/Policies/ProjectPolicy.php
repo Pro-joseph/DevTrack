@@ -50,17 +50,47 @@ class ProjectPolicy
     }
 
     /**
-     * Restaurer ce projet (Lead du projet)
+     * Ajouter un membre (Lead du projet)
+     */
+    public function addMember(User $user, Project $project): bool
+    {
+        return $this->isLead($user, $project);
+    }
+
+    /**
+     * Supprimer un membre (Lead du projet)
+     */
+    public function removeMember(User $user, Project $project): bool
+    {
+        return $this->isLead($user, $project);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est membre du projet
+     */
+    public function isMember(User $user, Project $project): bool
+    {
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->exists();
+    }
+
+    /**
+     * Restaurer ce projet (Propriétaire du projet)
      */
     public function restore(User $user, Project $project): bool
     {
-        return $this->isLead($user, $project);
+        return $project->owner->is($user);
     }
   /**
      * Vérifie si l'utilisateur est le lead de ce projet
      */
     private function isLead(User $user, Project $project): bool
     {
+        if ($project->owner->is($user)) {
+            return true;
+        }
+
         return $project->members()
                        ->where('user_id', $user->id)
                        ->wherePivot('role', 'lead')

@@ -27,6 +27,11 @@ class Project extends Model
             $project->tasks()->delete();
             $project->members()->detach();
         });
+
+        static::restoring(function ($project) {
+            $project->tasks()->restore();
+            $project->members()->attach($project->user_id, ['role' => 'lead']);
+        });
     }
 
     public function owner(): BelongsTo

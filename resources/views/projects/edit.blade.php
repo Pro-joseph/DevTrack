@@ -20,7 +20,7 @@
         @method('PUT')
         
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
-            <div class="md:col-span-7 space-y-8">
+            <div class="md:col-span-12 space-y-8">
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="title">Project Title</label>
                     <input class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all bg-surface/50" 
@@ -47,28 +47,6 @@
                             <option value="on_hold" {{ $project->status == 'on_hold' ? 'selected' : '' }}>On Hold</option>
                             <option value="completed" {{ $project->status == 'completed' ? 'selected' : '' }}>Completed</option>
                         </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="md:col-span-5 flex flex-col gap-2">
-                <label class="text-sm font-bold text-on-surface uppercase tracking-wider">Team Members</label>
-                <div class="border border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest flex-1 flex flex-col">
-                    <div class="p-3 bg-surface-container-low border-b border-outline-variant relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
-                        <input class="w-full pl-8 pr-4 py-1 text-xs bg-transparent border-none focus:ring-0" placeholder="Search members..." type="text"/>
-                    </div>
-                    <div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
-                        @foreach($project->members as $member)
-                        <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group">
-                            <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="checkbox" name="members[]" value="{{ $member->id }}" checked/>
-                            <img alt="{{ $member->name }}" class="w-10 h-10 rounded-full border border-outline-variant" src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}"/>
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-on-surface">{{ $member->name }}</p>
-                                <p class="text-xs text-on-surface-variant">{{ $member->pivot->role ?? 'Member' }}</p>
-                            </div>
-                        </label>
-                        @endforeach
                     </div>
                 </div>
             </div>

@@ -5,7 +5,6 @@
 
 @section('content')
 <div class="space-y-8 animate-in fade-in duration-500">
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
             <div class="flex items-center gap-3 mb-2">
@@ -16,7 +15,6 @@
         </div>
     </div>
 
-    <!-- Search Bar -->
     <form method="GET" action="{{ route('team.index') }}" class="relative">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <span class="material-symbols-outlined text-outline">search</span>
@@ -27,7 +25,6 @@
     </form>
 
     @if($search && isset($allUsers) && $allUsers->count() > 0)
-    <!-- Search Results -->
     <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
         <h3 class="text-lg font-bold text-on-surface mb-4">Add to Team</h3>
         <div class="space-y-3">
@@ -41,23 +38,23 @@
                         <p class="text-xs text-outline">{{ $user->email }}</p>
                     </div>
                 </div>
-                @if(isset($projects) && $projects->count() > 0)
-                <form method="POST" action="{{ route('team.addMember') }}" class="flex items-center gap-2">
-                    @csrf
-                    <input type="hidden" name="user_id" value="{{ $user->id }}">
-                    <select name="project_id" class="text-sm border border-outline-variant rounded-lg px-3 py-2">
-                        <option value="">Select Project</option>
-                        @foreach($projects as $project)
-                        <option value="{{ $project->id }}">{{ $project->title }}</option>
-                        @endforeach
-                    </select>
-                    <input type="hidden" name="role" value="developer">
-                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container transition-colors">
-                        Add
-                    </button>
-                </form>
+                @if(isset($myProjects) && $myProjects->count() > 0)
+                    <form method="POST" action="{{ route('team.addMember') }}" class="flex items-center gap-2">
+                        @csrf
+                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                        <select name="project_id" class="text-sm border border-outline-variant rounded-lg px-3 py-2">
+                            <option value="">Select Project</option>
+                            @foreach($myProjects as $project)
+                            <option value="{{ $project->id }}">{{ $project->title }}</option>
+                            @endforeach
+                        </select>
+                        <input type="hidden" name="role" value="developer">
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container transition-colors">
+                            Add
+                        </button>
+                    </form>
                 @else
-                <span class="text-xs text-outline">Create a project first</span>
+                <span class="text-xs text-outline">No projects you can manage</span>
                 @endif
             </div>
             @endforeach
@@ -65,38 +62,45 @@
     </div>
     @endif
 
-    <!-- My Team Members -->
     <div>
         <h3 class="text-lg font-bold text-on-surface mb-4">My Team</h3>
-        @if(isset($teamMembers) && $teamMembers->count() > 0)
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($teamMembers as $member)
-            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="relative">
-                        <img class="w-14 h-14 rounded-full border-2 border-white ring-2 ring-outline-variant" 
-                            src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&background=random" alt="{{ $member->name }}">
-                    </div>
+        @if(isset($myProjects) && $myProjects->count() > 0)
+        <div class="space-y-6">
+            @foreach($myProjects as $project)
+            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-bold text-on-surface">{{ $project->title }}</h4>
+                    <span class="text-xs text-outline">{{ $project->members->filter(fn($m) => $m->id !== $project->user_id)->count() + 1 }} members</span>
                 </div>
-                <h3 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">{{ $member->name }}</h3>
-                <p class="text-sm text-outline mb-3">{{ $member->email }}</p>
-                <div class="mt-4 pt-4 border-t border-outline-variant">
-                    @if(isset($projects))
-                    @foreach($projects as $project)
-                        @php $isMember = $project->members->contains('id', $member->id); @endphp
-                        @if($isMember || (isset($project->owner) && $project->owner->id == $member->id))
-                        <form method="POST" action="{{ route('team.removeMember') }}" class="flex items-center justify-between">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="flex items-center gap-3 p-3 bg-surface-container rounded-lg">
+                        <img class="w-10 h-10 rounded-full border border-outline-variant" 
+                            src="https://ui-avatars.com/api/?name={{ urlencode($project->owner->name) }}&background=random" alt="{{ $project->owner->name }}">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm text-on-surface truncate">{{ $project->owner->name }}</p>
+                            <p class="text-xs text-outline">Lead</p>
+                        </div>
+                    </div>
+                    @foreach($project->members->filter(fn($m) => $m->id !== $project->user_id) as $member)
+                    <div class="flex items-center justify-between gap-2 p-3 bg-surface-container rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <img class="w-10 h-10 rounded-full border border-outline-variant" 
+                                src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&background=random" alt="{{ $member->name }}">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-sm text-on-surface truncate">{{ $member->name }}</p>
+                                <p class="text-xs text-outline">{{ $member->pivot->role ?? 'Developer' }}</p>
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('team.removeMember') }}">
                             @csrf
-                            <span class="text-xs text-outline">{{ $project->title }}</span>
                             <input type="hidden" name="user_id" value="{{ $member->id }}">
                             <input type="hidden" name="project_id" value="{{ $project->id }}">
-                            <button type="submit" class="text-xs text-error hover:text-error-container" onclick="return confirm('Remove from {{ $project->title }}?')">
+                            <button type="submit" class="text-outline hover:text-error p-1" onclick="return confirm('Remove {{ $member->name }}?')">
                                 <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                         </form>
-                        @endif
+                    </div>
                     @endforeach
-                    @endif
                 </div>
             </div>
             @endforeach
@@ -104,10 +108,10 @@
         @else
         <div class="text-center py-12 bg-white border border-outline-variant rounded-xl">
             <div class="w-16 h-16 bg-surface-container mx-auto rounded-full flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-[32px] text-outline">group</span>
+                <span class="material-symbols-outlined text-[32px] text-outline">folder</span>
             </div>
-            <h3 class="text-lg font-bold text-on-surface mb-2">No team members yet</h3>
-            <p class="text-sm text-outline">Search for users above to add them to your projects.</p>
+            <h3 class="text-lg font-bold text-on-surface mb-2">No projects yet</h3>
+            <p class="text-sm text-outline">Create a project to start adding team members.</p>
         </div>
         @endif
     </div>

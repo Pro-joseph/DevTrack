@@ -12,11 +12,11 @@
             </div>
             <p class="text-sm text-outline">Manage and track your ongoing development initiatives.</p>
         </div>
-        <a href="{{ route('projects.create') }}"
+        {{-- <a href="{{ route('projects.create') }}"
             class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all active:scale-95">
             <span class="material-symbols-outlined text-[20px]">add</span>
             New Project
-        </a>
+        </a> --}}
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
@@ -129,7 +129,7 @@
         </div>
         @endforelse
 
-        @if($projects->count() < 4)
+        {{-- @if($projects->count() < 4)
         <a href="{{ route('projects.create') }}" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-white hover:border-primary transition-all group cursor-pointer">
             <div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-outline group-hover:bg-primary/10 group-hover:text-primary mb-4 transition-all">
                 <span class="material-symbols-outlined text-3xl">add_circle</span>
@@ -137,6 +137,6 @@
             <p class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">Initiate Project</p>
             <p class="text-xs text-outline px-4 mt-2 leading-relaxed">Start a new workflow and assign your core development team.</p>
         </a>
-        @endif
+        @endif --}}
     </div>
 @endsection

@@ -18,10 +18,12 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        $projects = Project::with(['owner', 'members', 'tasks'])
+        $projects = Project::withoutGlobalScopes()
+            ->with(['owner', 'members', 'tasks'])
             ->whereHas('members', function ($query) {
-                $query->where('user_id', auth()->id());
+                $query->withoutGlobalScopes()->where('user_id', auth()->id());
             })
+            ->whereNull('deleted_at')
             ->latest()
             ->paginate(10);
 
@@ -35,9 +37,7 @@ class ProjectController extends Controller
     {
         $this->authorize('create', Project::class);
 
-        $users = User::all();
-
-        return view('projects.create', compact('users'));
+        return view('projects.create');
     }
 
     /**
@@ -52,17 +52,7 @@ class ProjectController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        // Créateur devient automatiquement lead
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
-
-        // Ajouter les membres sélectionnés comme developers
-        if ($request->has('members')) {
-            $members = collect($request->input('members'))
-                ->reject(fn($userId) => $userId == auth()->id())
-                ->mapWithKeys(fn($userId) => [$userId => ['role' => 'developer']]);
-
-            $project->members()->attach($members);
-        }
 
         return redirect()
             ->route('projects.show', $project)
@@ -108,8 +98,10 @@ class ProjectController extends Controller
     /**
      * Archiver un projet (SoftDelete)
      */
-    public function destroy(Project $project): RedirectResponse
+    public function archive(int $id): RedirectResponse
     {
+        $project = Project::findOrFail($id);
+
         $this->authorize('delete', $project);
 
         $project->delete();
@@ -117,6 +109,20 @@ class ProjectController extends Controller
         return redirect()
             ->route('projects.index')
             ->with('success', 'Projet archivé !');
+    }
+
+    /**
+     * Supprimer définitivement un projet
+     */
+    public function destroy(Project $project): RedirectResponse
+    {
+        $this->authorize('delete', $project);
+
+        $project->forceDelete();
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Projet supprimé définitivement !');
     }
 
     /**

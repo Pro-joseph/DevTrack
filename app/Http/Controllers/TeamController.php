@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Project;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -14,13 +15,32 @@ class TeamController extends Controller
     {
         $search = $request->get('search', '');
         
-        $projects = Project::with(['owner', 'members'])
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhereHas('members', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    });
-            })
+        $myProjects = Project::withoutGlobalScopes()
+            ->with(['owner', 'members'])
+            ->where('user_id', auth()->id())
+            ->whereNull('deleted_at')
+            ->get();
+
+        $activeProjectIds = Project::withoutGlobalScopes()
+            ->whereNull('deleted_at')
+            ->pluck('id');
+
+        $myProjectIds = Project::withoutGlobalScopes()
+            ->where('user_id', auth()->id())
+            ->whereNull('deleted_at')
+            ->pluck('id');
+
+        $memberProjectIds = DB::table('project_user')
+            ->where('user_id', auth()->id())
+            ->whereIn('project_id', $activeProjectIds)
+            ->pluck('project_id');
+
+        $allProjectIds = $myProjectIds->merge($memberProjectIds)->unique();
+
+        $projects = Project::withoutGlobalScopes()
+            ->with(['owner', 'members'])
+            ->whereIn('id', $allProjectIds)
+            ->whereNull('deleted_at')
             ->get();
 
         $teamMembers = collect();
@@ -45,7 +65,7 @@ class TeamController extends Controller
             })
             ->get();
 
-        return view('team.index', compact('teamMembers', 'allUsers', 'search', 'projects'));
+        return view('team.index', compact('teamMembers', 'allUsers', 'search', 'projects', 'myProjects'));
     }
 
     public function addMember(Request $request): RedirectResponse
@@ -56,7 +76,10 @@ class TeamController extends Controller
             'role' => 'nullable|string|max:50',
         ]);
 
-        $project = Project::findOrFail($request->project_id);
+        $project = Project::withoutGlobalScopes()->findOrFail($request->project_id);
+        
+        $this->authorize('addMember', $project);
+        
         $user = User::findOrFail($request->user_id);
 
         if ($project->members()->where('user_id', $user->id)->exists()) {
@@ -77,7 +100,10 @@ class TeamController extends Controller
             'project_id' => 'required|exists:projects,id',
         ]);
 
-        $project = Project::findOrFail($request->project_id);
+        $project = Project::withoutGlobalScopes()->findOrFail($request->project_id);
+        
+        $this->authorize('removeMember', $project);
+        
         $project->members()->detach($request->user_id);
 
         return back()->with('success', 'Member removed from project!');
