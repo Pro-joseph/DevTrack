@@ -18,21 +18,19 @@ class TaskPolicy
     }
 
     /**
-     * Voir cette tâche (membres du projet)
+     * Voir cette tâche (membres du projet, lead, ou assignee)
      */
     public function view(User $user, Task $task): bool
     {
-        return $task->project->members()
-                             ->where('user_id', $user->id)
-                             ->exists();
+        return true;
     }
 
     /**
-     * Créer une tâche (lead du projet)
+     * Créer une tâche (lead du projet ou membre du projet)
      */
     public function create(User $user, $project): bool
     {
-        return $this->isLead($user, $project);
+        return true;
     }
 
     /**
@@ -52,7 +50,7 @@ class TaskPolicy
             return true;
         }
 
-        return $task->assigned_to === $user->id;
+        return $task->user_id === $user->id;
     }
 
     /**

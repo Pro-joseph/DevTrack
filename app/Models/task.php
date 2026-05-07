@@ -11,6 +11,8 @@ class Task extends Model
 
     protected $fillable = ['title', 'description', 'status', 'priority', 'project_id', 'user_id', 'deadline', 'assigned_to'];
 
+    protected $with = ['project', 'user'];
+
     public function project()
     {
         return $this->belongsTo(Project::class);

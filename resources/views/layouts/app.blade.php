@@ -12,6 +12,10 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/build/assets/app-D05hqmaw.css">
 

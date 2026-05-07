@@ -43,9 +43,15 @@
         <!-- Task List -->
         <div class="space-y-3">
             @forelse($tasks as $task)
-                <div class="bg-white border border-outline-variant rounded-xl p-4 hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
-                    <input type="checkbox" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                        {{ $task->status === 'done' ? 'checked' : '' }}>
+                <div class="bg-white border border-outline-variant rounded-xl p-4 hover:shadow-md transition-all cursor-pointer flex items-center gap-4 task-row"
+                     data-task-id="{{ $task->id }}"
+                     data-task-title="{{ $task->title }}"
+                     data-task-description="{{ $task->description ?? '' }}"
+                     data-task-priority="{{ $task->priority }}"
+                     data-task-status="{{ $task->status }}"
+                     data-task-deadline="{{ $task->deadline ?? '' }}"
+                     data-project-title="{{ $task->project->title ?? 'No Project' }}"
+                     data-user-name="{{ $task->user->name ?? 'Unassigned' }}">
 
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-on-surface truncate">{{ $task->title }}</h4>
@@ -68,10 +74,10 @@
                     </div>
 
                     @can('updateStatus', $task)
-                    <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST" class="inline">
+                    <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         @method('PUT')
-                        <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white">
+                        <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white cursor-pointer">
                             <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
                             <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
@@ -79,19 +85,15 @@
                     </form>
                     @endcan
 
-                    @can('update', $task)
-                    <a href="{{ route('tasks.edit', $task->id) }}" class="text-outline hover:text-primary p-2">
-                        <span class="material-symbols-outlined text-sm">edit</span>
-                    </a>
-                    @endcan
+
                     @can('delete', $task)
-                    <form action="{{ route('tasks.archive', $task->id) }}" method="POST" class="inline">
+                    <form action="{{ route('tasks.archive', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         <button type="submit" class="text-outline hover:text-primary p-2" onclick="return confirm('Archive this task?')">
                             <span class="material-symbols-outlined text-sm">archive</span>
                         </button>
                     </form>
-                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline">
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete this task permanently?')">
@@ -99,6 +101,10 @@
                         </button>
                     </form>
                     @endcan
+
+                    <button type="button" class="text-outline hover:text-primary p-2" onclick="event.stopPropagation()">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                    </button>
                 </div>
             @empty
                 <div class="text-center py-8 text-outline">
@@ -107,4 +113,78 @@
             @endforelse
         </div>
     </div>
+
+    <!-- Task Detail Modal -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50" onclick="closeTaskModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 mx-4 my-auto mt-20">
+            <button type="button" onclick="closeTaskModal()" class="absolute top-4 right-4 text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <h3 id="modalTitle" class="text-xl font-bold text-on-surface mb-4"></h3>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold uppercase text-outline">Description</label>
+                    <p id="modalDescription" class="text-sm text-on-surface mt-1"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold uppercase text-outline">Project</label>
+                        <p id="modalProject" class="text-sm text-on-surface mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-outline">Assigned To</label>
+                        <p id="modalUser" class="text-sm text-on-surface mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-outline">Priority</label>
+                        <p id="modalPriority" class="text-sm text-on-surface mt-1 capitalize"></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-outline">Status</label>
+                        <p id="modalStatus" class="text-sm text-on-surface mt-1 capitalize"></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-outline">Deadline</label>
+                        <p id="modalDeadline" class="text-sm text-on-surface mt-1"></p>
+                    </div>
+</div>
+                </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.task-row').forEach(row => {
+            row.addEventListener('click', function() {
+                const modal = document.getElementById('taskModal');
+                document.getElementById('modalTitle').textContent = this.dataset.taskTitle;
+                document.getElementById('modalDescription').textContent = this.dataset.taskDescription || 'No description';
+                document.getElementById('modalProject').textContent = this.dataset.projectTitle;
+                document.getElementById('modalUser').textContent = this.dataset.userName;
+                document.getElementById('modalPriority').textContent = this.dataset.taskPriority;
+                document.getElementById('modalStatus').textContent = this.dataset.taskStatus.replace('_', ' ');
+                
+                if (this.dataset.taskDeadline) {
+                    const date = new Date(this.dataset.taskDeadline);
+                    document.getElementById('modalDeadline').textContent = date.toLocaleDateString();
+                } else {
+                    document.getElementById('modalDeadline').textContent = 'No deadline';
+                }
+
+                
+                
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            });
+        });
+
+        function closeTaskModal() {
+            const modal = document.getElementById('taskModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    </script>
 @endsection

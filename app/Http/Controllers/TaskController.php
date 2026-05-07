@@ -86,10 +86,18 @@ class TaskController extends Controller
 
         $canUpdate = Gate::allows('update', $task);
 
+        $projectIds = Project::withoutGlobalScopes()
+            ->whereNull('deleted_at')
+            ->whereHas('members', fn($q) => $q->where('user_id', auth()->id()))
+            ->pluck('id');
+
+        if (!$projectIds->contains($task->project_id)) {
+            $projectIds->push($task->project_id);
+        }
+
         $projects = Project::withoutGlobalScopes()
             ->with(['owner', 'members'])
-            ->where('user_id', auth()->id())
-            ->whereNull('deleted_at')
+            ->whereIn('id', $projectIds)
             ->get();
 
         $teamMembers = collect();

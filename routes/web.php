@@ -84,10 +84,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
     Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::get('/task/{id}', function ($id) {
+        return redirect()->route('tasks.edit', $id);
+    })->name('tasks.show');
 
     Route::put('/task/{id}', [TaskController::class, 'update'])->name('tasks.update');
 
-    Route::post('/task/{id}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    Route::match(['POST', 'PUT'], '/task/{id}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 
     Route::post('/task/{id}/archive', [TaskController::class, 'archive'])
         ->name('tasks.archive');

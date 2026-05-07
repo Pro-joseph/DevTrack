@@ -71,6 +71,12 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                     </div>
                 </div>
                 @else
+                <input type="hidden" name="project_id" value="{{ $task->project_id }}">
+                <input type="hidden" name="title" value="{{ $task->title }}">
+                <input type="hidden" name="description" value="{{ $task->description }}">
+                <input type="hidden" name="deadline" value="{{ $task->deadline }}">
+                <input type="hidden" name="priority" value="{{ $task->priority }}">
+
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider">Project</label>
                     <div class="w-full border border-outline-variant rounded-lg text-sm py-3 px-4 bg-surface-container-low text-on-surface">
