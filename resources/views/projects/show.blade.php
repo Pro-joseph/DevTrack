@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 pt-6 animate-in fade-in duration-700">
         <div class="lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-on-surface">Open Tasks</h3>
@@ -142,11 +142,11 @@
             @endforelse
         </div>
 
-        <div class="space-y-8">
+        <div class="space-y-8 pt-6">
             <section class="bg-white border border-outline-variant p-8 rounded-2xl shadow-sm space-y-6">
-                <h3
-                    class="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant pb-4">
-                    Quick Summary</h3>
+                <h3 class="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-outline-variant pb-4 ">
+                    Quick Summary
+                </h3>
                 <div class="space-y-6">
                     <div>
                         <div class="text-[10px] text-outline font-bold uppercase tracking-widest mb-1">Owner</div>
