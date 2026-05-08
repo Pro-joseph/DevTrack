@@ -28,7 +28,10 @@ class TaskController extends Controller
             return view('tasks.index', compact('project', 'tasks'));
         }
 
-        $tasks = Task::whereHas('project.members', fn($q) => $q->where('user_id', auth()->id()))
+        $tasks = Task::where(function ($query) {
+                         $query->where('assigned_to', auth()->id())
+                               ->orWhere('user_id', auth()->id());
+                     })
                      ->with(['project', 'assignee'])
                      ->latest()
                      ->get();
@@ -58,7 +61,7 @@ class TaskController extends Controller
         $project->tasks()->create($request->validated());
 
         return redirect()
-            ->route('projects.tasks.index', $project)
+            ->route('projects.show', $project)
             ->with('success', 'Tâche créée avec succès !');
     }
 
@@ -67,11 +70,15 @@ class TaskController extends Controller
      */
     public function edit(Project $project, Task $task): View
     {
-        $this->authorize('update', $task);
+        $this->authorize('view', $task);
+        $this->authorize('updateStatus', $task);
+
+        $canFullUpdate = auth()->user()->id === $project->user_id ||
+            $project->members()->where('user_id', auth()->id())->wherePivot('role', 'lead')->exists();
 
         $members = $project->members;
 
-        return view('tasks.edit', compact('project', 'task', 'members'));
+        return view('tasks.edit', compact('project', 'task', 'members', 'canFullUpdate'))->with('canUpdate', $canFullUpdate);
     }
 
     /**
@@ -79,12 +86,29 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Project $project, Task $task): RedirectResponse
     {
-        $this->authorize('update', $task);
+        $isLead = auth()->user()->id === $project->user_id || 
+            $project->members()->where('user_id', auth()->id())->wherePivot('role', 'lead')->exists();
+        
+        $isAssignee = $task->user_id === auth()->id() || $task->assigned_to === auth()->id();
+
+        if (!$isLead && !$isAssignee) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($isAssignee && !$isLead) {
+            $request->validate([
+                'status' => ['required', 'in:todo,in_progress,done'],
+            ]);
+            $task->update(['status' => $request->status]);
+            return redirect()
+                ->back()
+                ->with('success', 'Statut mis à jour !');
+        }
 
         $task->update($request->validated());
 
         return redirect()
-            ->route('projects.tasks.index', $project)
+            ->route('tasks.index', $project)
             ->with('success', 'Tâche mise à jour !');
     }
 
@@ -102,7 +126,7 @@ class TaskController extends Controller
         $task->update(['status' => $validated['status']]);
 
         return redirect()
-            ->back()
+            ->route('projects.show', $project)
             ->with('success', 'Statut mis à jour !');
     }
 
@@ -137,7 +161,7 @@ class TaskController extends Controller
     /**
      * Restaurer une tâche
      */
-    public function restore(Project $project, Task $task): RedirectResponse
+    public function restore(Task $task): RedirectResponse
     {
         $task->restore();
 

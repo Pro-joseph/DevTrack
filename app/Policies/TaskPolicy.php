@@ -30,11 +30,11 @@ class TaskPolicy
     }
 
     /**
-     * Créer une tâche (lead du projet ou membre du projet)
+     * Créer une tâche (lead du projet)
      */
     public function create(User $user, $project): bool
     {
-        return true;
+        return $this->isLead($user, $project);
     }
 
     /**
@@ -54,7 +54,7 @@ class TaskPolicy
             return true;
         }
 
-        return $task->user_id === $user->id;
+        return $task->user_id === $user->id || $task->assigned_to === $user->id;
     }
 
     /**
@@ -70,6 +70,10 @@ class TaskPolicy
      */
     private function isLead(User $user, $project): bool
     {
+        if ($project->owner && $project->owner->is($user)) {
+            return true;
+        }
+
         return $project->members()
                        ->where('user_id', $user->id)
                        ->wherePivot('role', 'lead')

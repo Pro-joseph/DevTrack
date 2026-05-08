@@ -41,10 +41,11 @@
         <div class="space-y-4">
             <div class="flex justify-between items-center text-xs font-bold uppercase tracking-tight">
                 <span class="text-on-surface/70">Tasks</span>
-                <span class="text-primary">{{ $project->tasks->count() }} Tasks</span>
+                @php $totalTasks = $project->tasks->count(); $completedTasks = $project->tasks->where('status', 'done')->count(); $progress = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0; @endphp
+                <span class="text-primary">{{ $completedTasks }}/{{ $totalTasks }} Tasks</span>
             </div>
             <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
-                <div class="bg-primary h-full rounded-full w-[0%] transition-all duration-1000"></div>
+                <div class="bg-primary h-full rounded-full transition-all duration-1000" style="width: {{ $progress }}%"></div>
             </div>
             <div class="flex justify-between items-center pt-4">
                 <div class="flex -space-x-3">

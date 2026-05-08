@@ -17,8 +17,9 @@ class StoreTaskRequest extends FormRequest
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'priority'    => ['nullable', 'in:low,medium,high'],
-            'deadline'    => ['nullable', 'date', 'after:today'],
+            'deadline'    => ['nullable', 'date', 'after_or_equal:today'],
             'assigned_to' => ['nullable', 'exists:users,id'],
+            'status'      => ['nullable', 'in:todo,in_progress,done'],
         ];
     }
 
@@ -27,7 +28,7 @@ class StoreTaskRequest extends FormRequest
         return [
             'title.required'    => 'Le titre de la tâche est obligatoire.',
             'priority.in'       => 'La priorité doit être low, medium ou high.',
-            'deadline.after'    => 'La deadline doit être dans le futur.',
+            'deadline.after_or_equal'    => 'La deadline doit être aujourd\'hui ou dans le futur.',
             'assigned_to.exists'=> 'Ce développeur n\'existe pas.',
         ];
     }

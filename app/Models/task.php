@@ -11,7 +11,7 @@ class Task extends Model
 
     protected $fillable = ['title', 'description', 'status', 'priority', 'project_id', 'user_id', 'deadline', 'assigned_to'];
 
-    protected $with = ['project', 'user'];
+    protected $with = ['project', 'user', 'assignee'];
 
     public function project()
     {

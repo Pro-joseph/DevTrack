@@ -11,13 +11,6 @@
                 <h2 class="text-3xl font-bold text-on-surface">My Tasks</h2>
                 <p class="text-sm text-outline mt-1">You have {{ $tasks->count() }} tasks across all projects</p>
             </div>
-            @can('create', App\Models\Project::class)
-<a href="{{ isset($project) ? route('tasks.create', $project) : route('dashboard') }}"
-                class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-primary-container transition-all">
-                <span class="material-symbols-outlined text-[20px]">add</span>
-                Add Task
-            </a>
-            @endcan
         </div>
 
         <!-- Task Stats -->
@@ -51,7 +44,7 @@
                      data-task-status="{{ $task->status }}"
                      data-task-deadline="{{ $task->deadline ?? '' }}"
                      data-project-title="{{ $task->project->title ?? 'No Project' }}"
-                     data-user-name="{{ $task->user->name ?? 'Unassigned' }}">
+                      data-user-name="{{ $task->assignee->name ?? 'Unassigned' }}">
 
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-on-surface truncate">{{ $task->title }}</h4>
@@ -70,7 +63,7 @@
 
                     <div class="flex items-center gap-2 text-xs text-outline">
                         <span class="material-symbols-outlined text-sm">person</span>
-                        {{ $task->user->name ?? 'Unassigned' }}
+                        {{ $task->assignee->name ?? 'Unassigned' }}
                     </div>
 
                     @can('updateStatus', $task)
@@ -78,9 +71,9 @@
                         @csrf
                         @method('PUT')
                         <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white cursor-pointer">
-                            <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
-                            <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
+                            <option value="todo" {{ old('status', $task->status) == 'todo' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ old('status', $task->status) == 'done' ? 'selected' : '' }}>Done</option>
                         </select>
                     </form>
                     @endcan
@@ -115,9 +108,9 @@
     </div>
 
     <!-- Task Detail Modal -->
-    <div id="taskModal" class="fixed inset-0 z-50 hidden">
+    <div id="taskModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
         <div class="absolute inset-0 bg-black/50" onclick="closeTaskModal()"></div>
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 mx-4 my-auto mt-20">
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 mx-4">
             <button type="button" onclick="closeTaskModal()" class="absolute top-4 right-4 text-outline hover:text-on-surface">
                 <span class="material-symbols-outlined">close</span>
             </button>

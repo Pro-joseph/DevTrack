@@ -87,7 +87,7 @@ class ProjectPolicy
      */
     private function isLead(User $user, Project $project): bool
     {
-        if ($project->owner->is($user)) {
+        if ($project->owner && $project->owner->is($user)) {
             return true;
         }
 

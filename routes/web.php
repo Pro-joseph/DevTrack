@@ -15,12 +15,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class)->except(['destroy']);
 
     // Actions spéciales
-    Route::patch('projects/{id}/restore', [ProjectController::class, 'restore'])
+    Route::patch('projects/{project}/restore', [ProjectController::class, 'restore'])
         ->name('projects.restore');
-    Route::post('projects/{id}/archive', [ProjectController::class, 'archive'])
+    Route::post('projects/{project}/archive', [ProjectController::class, 'archive'])
         ->name('projects.archive');
-    Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
-        ->name('projects.destroy');
+    Route::delete('projects/{project}/force-delete', function (Project $project) {
+        $project->forceDelete();
+        return redirect()->route('projects.index')->with('success', 'Projet supprimé définitivement !');
+    })->name('projects.force-delete')
+      ->middleware('auth')
+      ->withTrashed();
 
     // Project Team Members
     Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
@@ -71,7 +75,10 @@ Route::middleware('auth')->group(function () {
             ->get();
 
         $archivedTasks = \App\Models\Task::onlyTrashed()
-            ->with(['project', 'user'])
+            ->with(['project', 'user', 'assignee'])
+            ->whereHas('project', function ($query) {
+                $query->whereNull('deleted_at');
+            })
             ->latest()
             ->get();
 
@@ -98,4 +105,14 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/project/{project}/task/{task}/restore', [TaskController::class, 'restore'])
         ->name('tasks.restore');
+
+    Route::patch('/task/{task}/restore', function (\App\Models\Task $task) {
+        $task->restore();
+        return redirect()->back()->with('success', 'Tâche restaurée !');
+    })->name('tasks.restore-simple');
+
+    Route::delete('/task/{task}', function (\App\Models\Task $task) {
+        $task->forceDelete();
+        return redirect()->back()->with('success', 'Tâche supprimée définitivement !');
+    })->name('tasks.force-delete');
 });

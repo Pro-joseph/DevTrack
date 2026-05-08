@@ -14,12 +14,12 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'sometimes' = valider seulement si le champ est présent
             'title'       => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'priority'    => ['sometimes', 'in:low,medium,high'],
-            'deadline'    => ['nullable', 'date', 'after:today'],
+            'deadline'    => ['nullable', 'date', new \App\Rules\DeadlineInFuture($this->route('task'))],
             'assigned_to' => ['nullable', 'exists:users,id'],
+            'status'      => ['sometimes', 'in:todo,in_progress,done'],
         ];
     }
 

@@ -110,11 +110,11 @@
                     </div>
                     <div class="flex items-center justify-between border-t border-outline-variant/30 pt-4">
                         <div class="flex items-center gap-2">
-                            @if ($task->user)
+                            @if ($task->assignee)
                                 <img class="h-8 w-8 rounded-full border-2 border-white ring-1 ring-outline-variant"
-                                    src="https://ui-avatars.com/api/?name={{ urlencode($task->user->name) }}"
-                                    alt="{{ $task->user->name }}">
-                                <span class="text-sm font-bold text-on-surface">{{ $task->user->name }}</span>
+                                    src="https://ui-avatars.com/api/?name={{ urlencode($task->assignee->name) }}"
+                                    alt="{{ $task->assignee->name }}">
+                                <span class="text-sm font-bold text-on-surface">{{ $task->assignee->name }}</span>
                             @else
                                 <div
                                     class="h-8 w-8 rounded-full border-2 border-white bg-surface-container flex items-center justify-center text-[10px] font-bold text-outline ring-1 ring-outline-variant">
@@ -124,10 +124,17 @@
                         </div>
                         <div class="flex items-center gap-4">
                             @can('updateStatus', $task)
-                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $task->status }}</span>
+                            <form action="{{ route('tasks.updateStatus', [$project, $task]) }}" method="POST" class="inline" onsubmit="this.querySelector('select').disabled = false;">
+                                @csrf
+                                @method('PUT')
+                                <select name="status" onchange="this.form.submit()" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest cursor-pointer border-none">
+                                    <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
+                                    <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                    <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
+                                </select>
+                            </form>
                             @else
-                            <span
-                                class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $task->status }}</span>
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $task->status }}</span>
                             @endcan
                         </div>
                     </div>

@@ -4,7 +4,8 @@
 $isEdit = isset($task) && $task;
 $formAction = $isEdit ? route('tasks.update', [$project, $task]) : route('tasks.store', $project);
 $method = $isEdit ? 'PUT' : 'POST';
-$canUpdate = $isEdit ? ($canUpdate ?? false) : true;
+$canFullUpdate = $isEdit ? (isset($canFullUpdate) && $canFullUpdate) : true;
+$canUpdate = $isEdit ? (isset($canUpdate) && $canUpdate) : true;
 @endphp
 
 @section('title', $isEdit ? 'Edit Task | DevTrack' : 'New Task | DevTrack')
@@ -30,7 +31,7 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
             <div class="md:col-span-7 space-y-8">
-                @if($canUpdate || !$isEdit)
+@if($canFullUpdate || !$isEdit)
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="project_id">Project</label>
                     <div class="w-full border border-outline-variant rounded-lg text-sm py-3 px-4 bg-surface-container-low text-on-surface">
@@ -42,7 +43,7 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="title">Task Title</label>
                     <input class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all bg-surface/50" 
-                           id="title" name="title" placeholder="e.g., Implement Authentication Flow" type="text" value="{{ $isEdit ? $task->title : old('title') }}" {{ !$canUpdate && $isEdit ? 'readonly' : 'required' }}/>
+                           id="title" name="title" placeholder="e.g., Implement Authentication Flow" type="text" value="{{ $isEdit ? $task->title : old('title') }}" {{ !$canFullUpdate && $isEdit ? 'readonly' : 'required' }}/>
                 </div>
 
                 <div class="flex flex-col gap-2">
@@ -114,9 +115,9 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                     @if($isEdit)
                         @canany(['update', 'updateStatus'], $task)
                         <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="status" name="status">
-                            <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
-                            <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
+                            <option value="todo" {{ old('status', $task->status) == 'todo' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ old('status', $task->status) == 'done' ? 'selected' : '' }}>Done</option>
                         </select>
                         @else
                         <div class="w-full border border-outline-variant rounded-lg text-sm py-3 px-4 bg-surface-container-low text-on-surface">
@@ -125,9 +126,9 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                         @endcanany
                     @else
                     <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="status" name="status">
-                        <option value="todo" selected>To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
+                        <option value="todo" {{ old('status', 'todo') == 'todo' ? 'selected' : '' }}>To Do</option>
+                        <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="done" {{ old('status') == 'done' ? 'selected' : '' }}>Done</option>
                     </select>
                     @endif
                 </div>
@@ -143,8 +144,8 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                     </div>
                     <div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
                         @forelse($members as $member)
-                            <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group {{ $isEdit && $task->user_id == $member->id ? 'bg-primary/5' : '' }}">
-                                <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="radio" name="assigned_to" value="{{ $member->id }}" {{ $isEdit && isset($task->user_id) && $task->user_id == $member->id ? 'checked' : '' }}/>
+                            <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group {{ $isEdit && $task->assigned_to == $member->id ? 'bg-primary/5' : '' }}">
+                                <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="radio" name="assigned_to" value="{{ $member->id }}" {{ $isEdit && isset($task->assigned_to) && $task->assigned_to == $member->id ? 'checked' : '' }}/>
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                                     {{ substr($member->name, 0, 1) }}
                                 </div>

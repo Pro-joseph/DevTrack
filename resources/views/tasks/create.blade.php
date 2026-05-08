@@ -64,9 +64,9 @@ $method = 'POST';
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="status">Status</label>
                     <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="status" name="status">
-                        <option value="todo" selected>To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
+                        <option value="todo" {{ old('status', 'todo') == 'todo' ? 'selected' : '' }}>To Do</option>
+                        <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="done" {{ old('status') == 'done' ? 'selected' : '' }}>Done</option>
                     </select>
                 </div>
             </div>
