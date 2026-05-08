@@ -13,18 +13,27 @@ use Illuminate\Http\RedirectResponse;
 class TaskController extends Controller
 {
     /**
-     * US8 — Liste des tâches d'un projet
+     * US8 — Liste des tâches (tous les projets ou un projet spécifique)
      */
-    public function index(Project $project): View
+    public function index(?Project $project = null): View
     {
-        $this->authorize('viewAny', [Task::class, $project]);
+        if ($project) {
+            $this->authorize('viewAny', [Task::class, $project]);
 
-        $tasks = $project->tasks()
-                         ->with(['assignee'])
-                         ->latest()
-                         ->get();
+            $tasks = $project->tasks()
+                             ->with(['assignee'])
+                             ->latest()
+                             ->get();
 
-        return view('tasks.index', compact('project', 'tasks'));
+            return view('tasks.index', compact('project', 'tasks'));
+        }
+
+        $tasks = Task::whereHas('project.members', fn($q) => $q->where('user_id', auth()->id()))
+                     ->with(['project', 'assignee'])
+                     ->latest()
+                     ->get();
+
+        return view('tasks.index', compact('tasks'));
     }
 
     /**
@@ -109,5 +118,31 @@ class TaskController extends Controller
         return redirect()
             ->route('projects.tasks.index', $project)
             ->with('success', 'Tâche supprimée !');
+    }
+
+    /**
+     * Archiver une tâche
+     */
+    public function archive(Project $project, Task $task): RedirectResponse
+    {
+        $this->authorize('delete', $task);
+
+        $task->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Tâche archivée !');
+    }
+
+    /**
+     * Restaurer une tâche
+     */
+    public function restore(Project $project, Task $task): RedirectResponse
+    {
+        $task->restore();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Tâche restaurée !');
     }
 }

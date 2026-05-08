@@ -8,10 +8,14 @@ use App\Models\User;
 class TaskPolicy
 {
     /**
-     * Voir les tâches du projet (membres du projet)
+     * Voir les tâches (tous ou d'un projet spécifique)
      */
-    public function viewAny(User $user, $project): bool
+    public function viewAny(User $user, $project = null): bool
     {
+        if (!$project) {
+            return $user->projects()->exists();
+        }
+
         return $project->members()
                        ->where('user_id', $user->id)
                        ->exists();

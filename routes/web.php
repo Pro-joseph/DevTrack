@@ -78,25 +78,24 @@ Route::middleware('auth')->group(function () {
         return view('archives.index', compact('archivedProjects', 'archivedTasks'));
     })->middleware(['auth'])->name('archives.index');
 
-    Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
     Route::get('/project/{project}/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
-    Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
+    Route::post('/project/{project}/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
-    Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
-    Route::get('/task/{id}', function ($id) {
-        return redirect()->route('tasks.edit', $id);
+    Route::get('/project/{project}/task/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::get('/project/{project}/task/{task}', function ($project, $task) {
+        return redirect()->route('tasks.edit', [$project, $task]);
     })->name('tasks.show');
 
-    Route::put('/task/{id}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::put('/project/{project}/task/{task}', [TaskController::class, 'update'])->name('tasks.update');
 
-    Route::match(['POST', 'PUT'], '/task/{id}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    Route::match(['POST', 'PUT'], '/project/{project}/task/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 
-    Route::post('/task/{id}/archive', [TaskController::class, 'archive'])
+    Route::post('/project/{project}/task/{task}/archive', [TaskController::class, 'archive'])
         ->name('tasks.archive');
 
-    Route::delete('/task/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::delete('/project/{project}/task/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
-    Route::patch('/task/{id}/restore', [TaskController::class, 'restore'])
+    Route::patch('/project/{project}/task/{task}/restore', [TaskController::class, 'restore'])
         ->name('tasks.restore');
 });

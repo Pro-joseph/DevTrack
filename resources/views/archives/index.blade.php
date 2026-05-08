@@ -79,14 +79,14 @@
                     {{ $task->status }}
                 </span>
                 <span class="text-xs text-outline">{{ $task->deleted_at ? \date('M d', \strtotime($task->deleted_at)) : '-' }}</span>
-                <form method="POST" action="{{ route('tasks.restore', $task->id) }}">
+                <form method="POST" action="{{ route('tasks.restore', [$task->project, $task]) }}">
                     @csrf
                     @method('PATCH')
                     <button type="submit" class="text-outline hover:text-primary p-2">
                         <span class="material-symbols-outlined text-sm">restore</span>
                     </button>
                 </form>
-                <form method="POST" action="{{ route('tasks.destroy', $task->id) }}">
+                <form method="POST" action="{{ route('tasks.destroy', [$task->project, $task]) }}">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete permanently?')">

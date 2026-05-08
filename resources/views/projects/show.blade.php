@@ -48,7 +48,7 @@
                             </a>
                         @endcan
                         @can('create', $project)
-                            <a href="{{ route('tasks.create') }}"
+                            <a href="{{ route('tasks.create', $project) }}"
                                 class="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[20px]">add</span>
                                 New Task
@@ -88,7 +88,7 @@
                     class="bg-white border border-outline-variant p-6 rounded-xl shadow-sm hover:shadow-md hover:translate-x-1 transition-all group">
                     <div class="flex justify-between items-start mb-6">
                         <div class="space-y-3">
-                            <a href="{{ route('tasks.edit', $task->id) }}"
+                            <a href="{{ route('tasks.edit', [$project, $task]) }}"
                                 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
                                 {{ $task->title }}
                             </a>
@@ -102,7 +102,7 @@
                             </div>
                         </div>
                         @can('update', $task)
-                        <a href="{{ route('tasks.edit', $task->id) }}"
+                        <a href="{{ route('tasks.edit', [$project, $task]) }}"
                             class="text-outline hover:text-primary transition-colors p-1">
                             <span class="material-symbols-outlined">edit</span>
                         </a>

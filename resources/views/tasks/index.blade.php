@@ -12,7 +12,7 @@
                 <p class="text-sm text-outline mt-1">You have {{ $tasks->count() }} tasks across all projects</p>
             </div>
             @can('create', App\Models\Project::class)
-            <a href="{{ route('tasks.create') }}"
+<a href="{{ isset($project) ? route('tasks.create', $project) : route('dashboard') }}"
                 class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-primary-container transition-all">
                 <span class="material-symbols-outlined text-[20px]">add</span>
                 Add Task
@@ -74,7 +74,7 @@
                     </div>
 
                     @can('updateStatus', $task)
-                    <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
+                    <form action="{{ route('tasks.updateStatus', [$task->project, $task]) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         @method('PUT')
                         <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white cursor-pointer">
@@ -87,13 +87,13 @@
 
 
                     @can('delete', $task)
-                    <form action="{{ route('tasks.archive', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
+                    <form action="{{ route('tasks.archive', [$task->project, $task]) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         <button type="submit" class="text-outline hover:text-primary p-2" onclick="return confirm('Archive this task?')">
                             <span class="material-symbols-outlined text-sm">archive</span>
                         </button>
                     </form>
-                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="inline" onclick="event.stopPropagation()">
+                    <form action="{{ route('tasks.destroy', [$task->project, $task]) }}" method="POST" class="inline" onclick="event.stopPropagation()">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete this task permanently?')">
@@ -108,7 +108,7 @@
                 </div>
             @empty
                 <div class="text-center py-8 text-outline">
-                    No tasks found. <a href="{{ route('tasks.create') }}" class="text-primary hover:underline">Create one</a>
+                    No tasks found. <a href="{{ isset($project) ? route('tasks.create', $project) : route('dashboard') }}" class="text-primary hover:underline">Create one</a>
                 </div>
             @endforelse
         </div>
