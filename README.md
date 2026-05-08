@@ -149,7 +149,7 @@ Key configuration options in `.env`:
 | `APP_DEBUG` | Enable debug mode | true |
 | `APP_URL` | Application URL | http://localhost |
 | `DB_CONNECTION` | Database driver | sqlite |
-| `MAIL_MAILER` | Mail driver | log |
+
 
 ## Running the Application
 
