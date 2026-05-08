@@ -232,15 +232,19 @@ php artisan route:list
 
 The application includes the following pages:
 - **Dashboard** - Overview of all projects and tasks with statistics
+<img width="1917" height="917" alt="Screenshot 2026-05-08 123006" src="https://github.com/user-attachments/assets/987c94ef-2b65-4ff2-a21a-9484a755913c" />
 
 - **Projects** - List, create, edit, view projects
+<img width="1917" height="917" alt="Screenshot 2026-05-08 122951" src="https://github.com/user-attachments/assets/f8addc9e-04bb-43df-bc2c-9e96326dd15e" />
 
 - **Tasks** - Full task management interface
+<img width="1918" height="918" alt="Screenshot 2026-05-08 123019" src="https://github.com/user-attachments/assets/e0aab4dd-739b-46c8-811f-78c409482cef" />
 
 - **Team** - Manage team members across projects
+<img width="1900" height="918" alt="Screenshot 2026-05-08 123033" src="https://github.com/user-attachments/assets/39040a88-2d17-4fdf-ba57-9db788773d35" />
 
 - **Archives** - View and restore deleted items
-
+<img width="1917" height="917" alt="Screenshot 2026-05-08 123121" src="https://github.com/user-attachments/assets/50773868-855a-4c5b-b84b-cb72df78506c" />
 
 
 ## Contributing
