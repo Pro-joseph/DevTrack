@@ -1,58 +1,297 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DevTrack
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based project management and task tracking application for teams. DevTrack helps you organize projects, manage tasks, and collaborate with team members efficiently.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Database Schema](#database-schema)
+- [Testing](#testing)
+- [Available Commands](#available-commands)
+- [Screenshots](#screenshots)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Project Management
+- Create new projects with title, description, and status
+- Edit and update project details
+- View all projects on the dashboard
+- Archive projects (soft delete)
+- Restore archived projects
+- Permanent project deletion
 
-## Learning Laravel
+### Task Management
+- Create tasks with title, description, due date, and priority
+- Assign tasks to projects
+- Assign tasks to team members
+- Update task status (pending, in-progress, completed)
+- Archive and restore tasks
+- Full task CRUD operations
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Team Collaboration
+- Add team members to projects
+- Remove team members from projects
+- View team members per project
+- Global team overview page
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### User Management
+- User registration
+- User login/logout
+- Profile management (name, email)
+- Password update
+- Password reset functionality
+- Email verification
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Additional Features
+- Dashboard with project and task statistics
+- Archives page for soft-deleted items
+- RESTful API for programmatic access
+- Responsive design with Tailwind CSS
 
-## Agentic Development
+## Tech Stack
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+| Component | Technology |
+|-----------|------------|
+| Framework | Laravel 13 |
+| Language | PHP 8.3+ |
+| Frontend | Tailwind CSS, Alpine.js |
+| Database | SQLite (default), MySQL, PostgreSQL |
+| Build Tool | Vite |
+| Testing | Pest PHP |
+| Authentication | Laravel Breeze |
 
-```bash
-composer require laravel/boost --dev
+## Project Structure
 
-php artisan boost:install
+```
+devtrack/
+├── app/
+│   ├── Http/Controllers/    # HTTP controllers
+│   ├── Models/              # Eloquent models
+│   └── ...
+├── config/                  # Configuration files
+├── database/
+│   ├── migrations/          # Database migrations
+│   └── seeders/            # Database seeders
+├── public/                 # Public assets
+├── resources/
+│   └── views/              # Blade templates
+├── routes/                  # Route definitions
+│   ├── web.php             # Web routes
+│   └── api.php             # API routes
+└── vendor/                 # Composer dependencies
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Prerequisites
+
+- PHP 8.3 or higher
+- Composer
+- Node.js 18+ and npm
+- SQLite (default) or MySQL/PostgreSQL
+
+## Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd devtrack
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Copy environment file**
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Generate application key**
+   ```bash
+   php artisan key:generate
+   ```
+
+5. **Configure database**
+   
+   For SQLite (default):
+   ```bash
+   touch database/database.sqlite
+   ```
+   
+   For MySQL, update `.env`:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=devtrack
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+6. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Install frontend dependencies**
+   ```bash
+   npm install
+   ```
+
+8. **Build assets**
+   ```bash
+   npm run build
+   ```
+
+## Configuration
+
+### Environment Variables
+
+Key configuration options in `.env`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `APP_NAME` | Application name | DevTrack |
+| `APP_ENV` | Application environment | local |
+| `APP_DEBUG` | Enable debug mode | true |
+| `APP_URL` | Application URL | http://localhost |
+| `DB_CONNECTION` | Database driver | sqlite |
+| `MAIL_MAILER` | Mail driver | log |
+
+## Running the Application
+
+### Development Mode (Recommended)
+
+Run all services simultaneously (Laravel server, queue worker, Vite):
+```bash
+npm run dev
+```
+
+### Manual Startup
+
+Start the Laravel development server:
+```bash
+php artisan serve
+```
+
+Start the Vite development server:
+```bash
+npm run dev
+```
+
+## API Endpoints
+
+### Tasks API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/projects/{project}/tasks` | List all tasks for a project |
+| GET | `/api/projects/{project}/tasks/{task}` | Get a specific task |
+
+### Web Routes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Redirect to dashboard |
+| GET | `/dashboard` | Main dashboard |
+| GET | `/login` | Login page |
+| POST | `/login` | Handle login |
+| GET | `/register` | Registration page |
+| POST | `/register` | Handle registration |
+| POST | `/logout` | Handle logout |
+| GET | `/projects` | List projects |
+| POST | `/projects` | Create project |
+| GET | `/projects/{project}` | View project |
+| GET | `/projects/{project}/edit` | Edit project |
+| PUT | `/projects/{project}` | Update project |
+| POST | `/projects/{project}/archive` | Archive project |
+| PATCH | `/projects/{project}/restore` | Restore project |
+| DELETE | `/projects/{project}` | Delete project |
+| GET | `/tasks` | List all tasks |
+| GET | `/task/new` | Create task page |
+| POST | `/task/new` | Create task |
+| GET | `/task/{task}/edit` | Edit task |
+| PUT | `/task/{task}` | Update task |
+| POST/PUT | `/task/{task}/status` | Update task status |
+| POST | `/task/{task}/archive` | Archive task |
+| DELETE | `/task/{task}` | Delete task |
+| PATCH | `/task/{task}/restore` | Restore task |
+| GET | `/team` | Team management |
+| GET | `/archives` | View archived items |
+
+## Database Schema
+
+### Users Table
+- id, name, email, email_verified_at, password, remember_token, timestamps
+
+### Projects Table
+- id, title, description, status, user_id (owner), deleted_at, timestamps
+
+### Tasks Table
+- id, title, description, status, priority, due_date, project_id, user_id (assigned_to), deleted_at, timestamps
+
+### Project User Table (Pivot)
+- project_id, user_id (team members)
+
+## Testing
+
+Run all tests:
+```bash
+php artisan test
+```
+
+## Available Commands
+
+```bash
+# Setup project (install, key, migrate, build)
+composer run setup
+
+# Development server with all services
+npm run dev
+
+# Run tests
+composer run test
+
+# Clear config cache
+php artisan config:clear
+
+# Clear route cache
+php artisan route:clear
+
+# Clear view cache
+php artisan view:clear
+
+# List routes
+php artisan route:list
+```
+
+## Screenshots
+
+The application includes the following pages:
+- **Dashboard** - Overview of all projects and tasks with statistics
+- **Projects** - List, create, edit, view projects
+- **Tasks** - Full task management interface
+- **Team** - Manage team members across projects
+- **Archives** - View and restore deleted items
+- **Profile** - User profile and password management
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License - see the [LICENSE](LICENSE) file for details.
