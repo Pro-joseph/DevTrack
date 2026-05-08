@@ -1,103 +1,104 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Tasks | DevTrack'); ?>
+<?php $__env->startSection('page-title', 'Tasks'); ?>
 
-@section('title', 'Tasks | DevTrack')
-@section('page-title', 'Tasks')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="space-y-6 animate-in fade-in duration-500">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h2 class="text-3xl font-bold text-on-surface">My Tasks</h2>
-                <p class="text-sm text-outline mt-1">You have {{ $tasks->count() }} tasks across all projects</p>
+                <p class="text-sm text-outline mt-1">You have <?php echo e($tasks->count()); ?> tasks across all projects</p>
             </div>
         </div>
 
         <!-- Task Stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white border border-outline-variant rounded-xl p-4">
-                <div class="text-2xl font-black text-primary">{{ $tasks->count() }}</div>
+                <div class="text-2xl font-black text-primary"><?php echo e($tasks->count()); ?></div>
                 <div class="text-xs text-outline font-bold uppercase tracking-wider">Total</div>
             </div>
             <div class="bg-white border border-outline-variant rounded-xl p-4">
-                <div class="text-2xl font-black text-on-surface">{{ $tasks->where('status', 'todo')->count() }}</div>
+                <div class="text-2xl font-black text-on-surface"><?php echo e($tasks->where('status', 'todo')->count()); ?></div>
                 <div class="text-xs text-outline font-bold uppercase tracking-wider">To Do</div>
             </div>
             <div class="bg-white border border-outline-variant rounded-xl p-4">
-                <div class="text-2xl font-black text-primary">{{ $tasks->where('status', 'in_progress')->count() }}</div>
+                <div class="text-2xl font-black text-primary"><?php echo e($tasks->where('status', 'in_progress')->count()); ?></div>
                 <div class="text-xs text-outline font-bold uppercase tracking-wider">In Progress</div>
             </div>
             <div class="bg-white border border-outline-variant rounded-xl p-4">
-                <div class="text-2xl font-black text-secondary">{{ $tasks->where('status', 'done')->count() }}</div>
+                <div class="text-2xl font-black text-secondary"><?php echo e($tasks->where('status', 'done')->count()); ?></div>
                 <div class="text-xs text-outline font-bold uppercase tracking-wider">Done</div>
             </div>
         </div>
 
         <!-- Task List -->
         <div class="space-y-3">
-            @forelse($tasks as $task)
+            <?php $__empty_1 = true; $__currentLoopData = $tasks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $task): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="bg-white border border-outline-variant rounded-xl p-4 hover:shadow-md transition-all cursor-pointer flex items-center gap-4 task-row"
-                     data-task-id="{{ $task->id }}"
-                     data-task-title="{{ $task->title }}"
-                     data-task-description="{{ $task->description ?? '' }}"
-                     data-task-priority="{{ $task->priority }}"
-                     data-task-status="{{ $task->status }}"
-                     data-task-deadline="{{ $task->deadline ?? '' }}"
-                     data-project-title="{{ $task->project->title ?? 'No Project' }}"
-                      data-user-name="{{ $task->assignee->name ?? 'Unassigned' }}">
+                     data-task-id="<?php echo e($task->id); ?>"
+                     data-task-title="<?php echo e($task->title); ?>"
+                     data-task-description="<?php echo e($task->description ?? ''); ?>"
+                     data-task-priority="<?php echo e($task->priority); ?>"
+                     data-task-status="<?php echo e($task->status); ?>"
+                     data-task-deadline="<?php echo e($task->deadline ?? ''); ?>"
+                     data-project-title="<?php echo e($task->project->title ?? 'No Project'); ?>"
+                      data-user-name="<?php echo e($task->assignee->name ?? 'Unassigned'); ?>">
 
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-on-surface truncate">{{ $task->title }}</h4>
-                        <p class="text-xs text-outline truncate">{{ $task->project->title ?? 'No Project' }}</p>
+                        <h4 class="font-bold text-on-surface truncate"><?php echo e($task->title); ?></h4>
+                        <p class="text-xs text-outline truncate"><?php echo e($task->project->title ?? 'No Project'); ?></p>
                     </div>
 
                     <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded
-                        {{ $task->priority === 'high' ? 'bg-error/10 text-error' : ($task->priority === 'medium' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline') }}">
-                        {{ $task->priority }}
+                        <?php echo e($task->priority === 'high' ? 'bg-error/10 text-error' : ($task->priority === 'medium' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline')); ?>">
+                        <?php echo e($task->priority); ?>
+
                     </span>
 
                     <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded whitespace-nowrap
-                        {{ $task->status === 'done' ? 'bg-secondary/10 text-secondary' : ($task->status === 'in_progress' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline') }}">
-                        {{ str_replace('_', ' ', $task->status) }}
+                        <?php echo e($task->status === 'done' ? 'bg-secondary/10 text-secondary' : ($task->status === 'in_progress' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline')); ?>">
+                        <?php echo e(str_replace('_', ' ', $task->status)); ?>
+
                     </span>
 
                     <div class="flex items-center gap-2 text-xs text-outline">
                         <span class="material-symbols-outlined text-sm">person</span>
-                        {{ $task->assignee->name ?? 'Unassigned' }}
+                        <?php echo e($task->assignee->name ?? 'Unassigned'); ?>
+
                     </div>
 
-                    @can('updateStatus', $task)
-                    <form action="{{ route('tasks.updateStatus', [$task->project, $task]) }}" method="POST" class="inline" onclick="event.stopPropagation()">
-                        @csrf
-                        @method('PUT')
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('updateStatus', $task)): ?>
+                    <form action="<?php echo e(route('tasks.updateStatus', [$task->project, $task])); ?>" method="POST" class="inline" onclick="event.stopPropagation()">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('PUT'); ?>
                         <select name="status" onchange="this.form.submit()" class="text-xs border border-outline-variant rounded px-2 py-1 bg-white cursor-pointer">
-                            <option value="todo" {{ old('status', $task->status) == 'todo' ? 'selected' : '' }}>To Do</option>
-                            <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="done" {{ old('status', $task->status) == 'done' ? 'selected' : '' }}>Done</option>
+                            <option value="todo" <?php echo e(old('status', $task->status) == 'todo' ? 'selected' : ''); ?>>To Do</option>
+                            <option value="in_progress" <?php echo e(old('status', $task->status) == 'in_progress' ? 'selected' : ''); ?>>In Progress</option>
+                            <option value="done" <?php echo e(old('status', $task->status) == 'done' ? 'selected' : ''); ?>>Done</option>
                         </select>
                     </form>
-                    @endcan
+                    <?php endif; ?>
 
 
-                    @can('delete', $task)
-                    <form action="{{ route('tasks.destroy-simple', $task) }}" method="POST" class="inline" onclick="event.stopPropagation()">
-                        @csrf
-                        @method('DELETE')
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete', $task)): ?>
+                    <form action="<?php echo e(route('tasks.destroy-simple', $task)); ?>" method="POST" class="inline" onclick="event.stopPropagation()">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('DELETE'); ?>
                         <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete this task?')">
                             <span class="material-symbols-outlined text-sm">delete</span>
                         </button>
                     </form>
-                    @endcan
+                    <?php endif; ?>
 
                     <button type="button" class="text-outline hover:text-primary p-2" onclick="event.stopPropagation()">
                         <span class="material-symbols-outlined text-sm">visibility</span>
                     </button>
                 </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="text-center py-8 text-outline">
-                    No tasks found. <a href="{{ isset($project) ? route('tasks.create', $project) : route('dashboard') }}" class="text-primary hover:underline">Create one</a>
+                    No tasks found. <a href="<?php echo e(isset($project) ? route('tasks.create', $project) : route('dashboard')); ?>" class="text-primary hover:underline">Create one</a>
                 </div>
-            @endforelse
+            <?php endif; ?>
         </div>
     </div>
 
@@ -174,4 +175,5 @@
             modal.style.display = 'none';
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\jdira\Herd\devtrack\resources\views/tasks/index.blade.php ENDPATH**/ ?>
