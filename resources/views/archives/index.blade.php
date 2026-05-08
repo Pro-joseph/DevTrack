@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="flex gap-2 mt-4 pt-4 border-t border-outline-variant">
-                    <form method="POST" action="{{ route('projects.restore', $project->id) }}" class="flex-1">
+                    <form method="POST" action="{{ route('projects.restore', $project) }}" class="flex-1">
                         @csrf
                         @method('PATCH')
                         <button type="submit" class="w-full py-2 text-sm font-medium bg-surface-container text-on-surface rounded-lg hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1">
@@ -50,7 +50,7 @@
                             Restore
                         </button>
                     </form>
-                    <form method="POST" action="{{ route('projects.destroy', $project->id) }}">
+                    <form method="POST" action="{{ route('projects.force-delete', $project) }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="py-2 px-3 text-sm font-medium text-error hover:bg-error-container rounded-lg transition-colors" onclick="return confirm('Delete permanently?')">
@@ -79,14 +79,14 @@
                     {{ $task->status }}
                 </span>
                 <span class="text-xs text-outline">{{ $task->deleted_at ? \date('M d', \strtotime($task->deleted_at)) : '-' }}</span>
-                <form method="POST" action="{{ route('tasks.restore', $task->id) }}">
+                <form method="POST" action="{{ route('tasks.restore-simple', $task) }}">
                     @csrf
                     @method('PATCH')
                     <button type="submit" class="text-outline hover:text-primary p-2">
                         <span class="material-symbols-outlined text-sm">restore</span>
                     </button>
                 </form>
-                <form method="POST" action="{{ route('tasks.destroy', $task->id) }}">
+                <form method="POST" action="{{ route('tasks.force-delete', $task) }}">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="text-outline hover:text-error p-2" onclick="return confirm('Delete permanently?')">

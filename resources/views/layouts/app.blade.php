@@ -12,6 +12,10 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/build/assets/app-D05hqmaw.css">
 
@@ -63,15 +67,18 @@
         </div>
 
         <div class="flex items-center gap-3 px-2 py-4 mb-4 bg-surface-container-low rounded-xl">
+            @auth
             @php $user = auth()->user(); @endphp
-            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" 
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random"
                  alt="{{ $user->name }}" class="w-10 h-10 rounded-full object-cover">
             <div>
                 <div class="text-on-surface font-bold text-sm">{{ $user->name }}</div>
                 <div class="text-outline text-xs">{{ $user->email }}</div>
             </div>
+            @endauth
         </div>
 
+        @auth
 <nav class="flex-1 space-y-1 overflow-y-auto">
             @php
                 $navLinks = [
@@ -107,6 +114,7 @@
                 </button>
             </form>
         </div>
+        @endauth
     </aside>
 
     <!-- Main Content Area -->
@@ -129,9 +137,11 @@
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
                 </button>
+                @auth
                 @php $user = auth()->user(); @endphp
                 <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random" 
                      alt="{{ $user->name }}" class="w-8 h-8 rounded-full border border-outline-variant object-cover">
+                @endauth
             </div>
         </header>
 

@@ -12,11 +12,18 @@ use Illuminate\View\View;
 class ProjectController extends Controller
 {
     /**
-     * Liste de tous les projets
+     * Liste des projets où l'utilisateur est membre
      */
     public function index(): View
     {
-        $projects = Project::with(['owner', 'members', 'tasks'])
+        $this->authorize('viewAny', Project::class);
+
+        $projects = Project::withoutGlobalScopes()
+            ->with(['owner', 'members', 'tasks'])
+            ->whereHas('members', function ($query) {
+                $query->withoutGlobalScopes()->where('user_id', auth()->id());
+            })
+            ->whereNull('deleted_at')
             ->latest()
             ->paginate(10);
 
@@ -28,29 +35,9 @@ class ProjectController extends Controller
      */
     public function create(): View
     {
-        $projects = Project::with(['owner', 'members'])
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhereHas('members', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    });
-            })
-            ->get();
+        $this->authorize('create', Project::class);
 
-        $teamMembers = collect();
-        foreach ($projects as $project) {
-            foreach ($project->members as $member) {
-                if ($member->id !== auth()->id()) {
-                    $teamMembers->push($member);
-                }
-            }
-            if ($project->owner->id !== auth()->id()) {
-                $teamMembers->push($project->owner);
-            }
-        }
-        $users = $teamMembers->unique('id')->values();
-
-        return view('project-form', compact('users'));
+        return view('projects.create');
     }
 
     /**
@@ -58,20 +45,14 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', Project::class);
+
         $project = Project::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
         ]);
 
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
-
-        if ($request->has('members')) {
-            foreach ($request->input('members') as $userId) {
-                if ($userId != auth()->id()) {
-                    $project->members()->attach($userId, ['role' => 'developer']);
-                }
-            }
-        }
 
         return redirect()
             ->route('projects.show', $project)
@@ -117,21 +98,31 @@ class ProjectController extends Controller
     /**
      * Archiver un projet (SoftDelete)
      */
-    public function destroy(int $id): RedirectResponse
+    public function archive(int $id): RedirectResponse
     {
-        $project = Project::withTrashed()->findOrFail($id);
-        $project->forceDelete();
+        $project = Project::findOrFail($id);
 
-        return redirect()
-            ->route('archives.index')
-            ->with('success', 'Projet supprimé définitivement !');
-    }
+        $this->authorize('delete', $project);
 
         $project->delete();
 
         return redirect()
             ->route('projects.index')
             ->with('success', 'Projet archivé !');
+    }
+
+    /**
+     * Supprimer définitivement un projet
+     */
+    public function destroy(Project $project): RedirectResponse
+    {
+        $this->authorize('delete', $project);
+
+        $project->forceDelete();
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Projet supprimé définitivement !');
     }
 
     /**
@@ -146,7 +137,7 @@ class ProjectController extends Controller
         $project->restore();
 
         return redirect()
-            ->route('archives.index')
+            ->route('projects.index')
             ->with('success', 'Projet restauré !');
     }
 }

@@ -11,6 +11,8 @@ class Task extends Model
 
     protected $fillable = ['title', 'description', 'status', 'priority', 'project_id', 'user_id', 'deadline', 'assigned_to'];
 
+    protected $with = ['project', 'user', 'assignee'];
+
     public function project()
     {
         return $this->belongsTo(Project::class);
@@ -20,4 +22,18 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+    public function getFormattedStatusAttribute(): string
+{
+    return match($this->status) {
+        'todo'        => 'To Do',
+        'in_progress' => 'In Progress',
+        'done'        => 'Done',
+        default       => ucfirst($this->status),
+    };
+}
 }

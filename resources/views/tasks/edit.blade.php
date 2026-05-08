@@ -2,9 +2,10 @@
 
 @php
 $isEdit = isset($task) && $task;
-$formAction = $isEdit ? route('tasks.update', $task->id) : route('tasks.store');
+$formAction = $isEdit ? route('tasks.update', [$project, $task]) : route('tasks.store', $project);
 $method = $isEdit ? 'PUT' : 'POST';
-$canUpdate = $isEdit ? ($canUpdate ?? false) : true;
+$canFullUpdate = $isEdit ? (isset($canFullUpdate) && $canFullUpdate) : true;
+$canUpdate = $isEdit ? (isset($canUpdate) && $canUpdate) : true;
 @endphp
 
 @section('title', $isEdit ? 'Edit Task | DevTrack' : 'New Task | DevTrack')
@@ -17,7 +18,7 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
             <h1 class="text-2xl font-bold text-on-surface">{{ $isEdit ? 'Edit Task' : 'Define Task' }}</h1>
             <p class="text-sm text-on-surface-variant">{{ $isEdit ? 'Update task details.' : 'Define task requirements.' }}</p>
         </div>
-        <a href="{{ route('tasks.index') }}" class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+        <a href="{{ isset($project) ? route('projects.show', $project) : route('tasks.index') }}" class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
             <span class="material-symbols-outlined">close</span>
         </a>
     </div>
@@ -30,23 +31,19 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
             <div class="md:col-span-7 space-y-8">
-                @if($canUpdate || !$isEdit)
+@if($canFullUpdate || !$isEdit)
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="project_id">Project</label>
-                    <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="project_id" name="project_id" required {{ !$canUpdate && $isEdit ? 'disabled' : '' }}>
-                        <option value="">Select a project</option>
-                        @foreach($projects ?? [] as $proj)
-                            <option value="{{ $proj->id }}" {{ ($isEdit && $task->project_id == $proj->id) || (isset($selectedProjectId) && $selectedProjectId == $proj->id) ? 'selected' : '' }}>
-                                {{ $proj->title }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="w-full border border-outline-variant rounded-lg text-sm py-3 px-4 bg-surface-container-low text-on-surface">
+                        {{ $project->title ?? 'No Project' }}
+                    </div>
+                    <input type="hidden" name="project_id" value="{{ $project->id }}">
                 </div>
 
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold text-on-surface uppercase tracking-wider" for="title">Task Title</label>
                     <input class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all bg-surface/50" 
-                           id="title" name="title" placeholder="e.g., Implement Authentication Flow" type="text" value="{{ $isEdit ? $task->title : old('title') }}" {{ !$canUpdate && $isEdit ? 'readonly' : 'required' }}/>
+                           id="title" name="title" placeholder="e.g., Implement Authentication Flow" type="text" value="{{ $isEdit ? $task->title : old('title') }}" {{ !$canFullUpdate && $isEdit ? 'readonly' : 'required' }}/>
                 </div>
 
                 <div class="flex flex-col gap-2">
@@ -118,9 +115,9 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                     @if($isEdit)
                         @canany(['update', 'updateStatus'], $task)
                         <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="status" name="status">
-                            <option value="todo" {{ $task->status == 'todo' ? 'selected' : '' }}>To Do</option>
-                            <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
+                            <option value="todo" {{ old('status', $task->status) == 'todo' ? 'selected' : '' }}>To Do</option>
+                            <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="done" {{ old('status', $task->status) == 'done' ? 'selected' : '' }}>Done</option>
                         </select>
                         @else
                         <div class="w-full border border-outline-variant rounded-lg text-sm py-3 px-4 bg-surface-container-low text-on-surface">
@@ -129,9 +126,9 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                         @endcanany
                     @else
                     <select class="w-full border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg text-sm py-3 px-4 transition-all appearance-none bg-surface/50" id="status" name="status">
-                        <option value="todo" selected>To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
+                        <option value="todo" {{ old('status', 'todo') == 'todo' ? 'selected' : '' }}>To Do</option>
+                        <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="done" {{ old('status') == 'done' ? 'selected' : '' }}>Done</option>
                     </select>
                     @endif
                 </div>
@@ -146,19 +143,19 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
                         <input class="w-full pl-8 pr-4 py-1 text-xs bg-transparent border-none focus:ring-0" placeholder="Search team members..." type="text"/>
                     </div>
                     <div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
-                        @forelse($users ?? [] as $user)
-                            <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group {{ $isEdit && $task->user_id == $user->id ? 'bg-primary/5' : '' }}">
-                                <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="radio" name="assigned_to" value="{{ $user->id }}" {{ $isEdit && isset($task->user_id) && $task->user_id == $user->id ? 'checked' : '' }}/>
+                        @forelse($members as $member)
+                            <label class="flex items-center gap-3 p-4 hover:bg-surface-container-low transition-colors cursor-pointer group {{ $isEdit && $task->assigned_to == $member->id ? 'bg-primary/5' : '' }}">
+                                <input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" type="radio" name="assigned_to" value="{{ $member->id }}" {{ $isEdit && isset($task->assigned_to) && $task->assigned_to == $member->id ? 'checked' : '' }}/>
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    {{ substr($user->name, 0, 1) }}
+                                    {{ substr($member->name, 0, 1) }}
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-sm font-bold text-on-surface">{{ $user->name }}</p>
-                                    <p class="text-xs text-on-surface-variant">{{ $user->email }}</p>
+                                    <p class="text-sm font-bold text-on-surface">{{ $member->name }}</p>
+                                    <p class="text-xs text-on-surface-variant">{{ $member->email }}</p>
                                 </div>
                             </label>
                         @empty
-                            <div class="p-4 text-center text-outline text-sm">No users available</div>
+                            <div class="p-4 text-center text-outline text-sm">No members available</div>
                         @endforelse
                     </div>
                 </div>
@@ -182,7 +179,7 @@ $canUpdate = $isEdit ? ($canUpdate ?? false) : true;
         </div>
 
         <div class="pt-8 border-t border-outline-variant flex items-center justify-end gap-4">
-            <a href="{{ route('tasks.index') }}" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-all">
+            <a href="{{ isset($project) ? route('projects.show', $project) : route('tasks.index') }}" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-all">
                 Cancel
             </a>
             <button class="bg-primary hover:bg-primary-container text-white px-8 py-2.5 text-sm font-bold rounded-lg shadow-sm active:scale-95 transition-all flex items-center gap-2" type="submit">

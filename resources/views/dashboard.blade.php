@@ -12,35 +12,32 @@
             </div>
             <p class="text-sm text-outline">Manage and track your ongoing development initiatives.</p>
         </div>
-        <a href="{{ route('projects.create') }}"
+        {{-- <a href="{{ route('projects.create') }}"
             class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg hover:bg-primary-container transition-all active:scale-95">
             <span class="material-symbols-outlined text-[20px]">add</span>
             New Project
-        </a>
+        </a> --}}
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-        @forelse($projects->take(4) as $index => $project)
-            @if($index === 0 && $projects->isNotEmpty())
-            <div class="col-span-1 lg:col-span-2 bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+        @forelse($projects as $project)
+            <a href="{{ route('projects.show', $project->id) }}" class="block bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                @if($project->status === 'active')
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                @endif
                 <div class="flex justify-between items-start mb-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-secondary-container/30 text-secondary rounded-lg flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[28px]">database</span>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-on-surface group-hover:text-primary transition-colors">
-                                {{ $project->title }}
-                            </h3>
-                            <p class="text-xs text-outline font-medium uppercase tracking-wider">{{ $project->owner?->name ?? 'No owner' }}</p>
-                        </div>
+                    <div class="w-12 h-12 {{ $project->status === 'active' ? 'bg-secondary-container/30 text-secondary' : 'bg-primary/10 text-primary' }} rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[28px]">{{ $project->status === 'active' ? 'database' : 'folder' }}</span>
                     </div>
-                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] rounded-md font-bold uppercase tracking-widest">
+                    <span class="px-2 py-1 {{ $project->status === 'active' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary' }} text-[10px] rounded-md font-bold uppercase tracking-widest">
                         {{ $project->status }}
                     </span>
                 </div>
-                <p class="text-sm text-on-surface-variant mb-8 line-clamp-2 leading-relaxed">
+                <h3 class="text-xl font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">
+                    {{ $project->title }}
+                </h3>
+                <p class="text-xs text-outline font-medium uppercase tracking-wider mb-4">{{ $project->owner?->name ?? 'No owner' }}</p>
+                <p class="text-sm text-on-surface-variant mb-6 line-clamp-2">
                     {{ $project->description ?? 'No description available.' }}
                 </p>
                 <div class="space-y-4">
@@ -50,11 +47,11 @@
                         $progress = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
                     @endphp
                     <div class="flex justify-between items-center text-xs font-bold uppercase tracking-tight">
-                        <span class="text-on-surface/70">Development Progress</span>
-                        <span class="text-primary">{{ $completedTasks }} / {{ $totalTasks }} Tasks</span>
+                        <span class="{{ $project->status === 'active' ? 'text-on-surface/70' : 'text-outline' }}">Tasks</span>
+                        <span class="{{ $project->status === 'active' ? 'text-primary' : 'text-on-surface' }}">{{ $completedTasks }} / {{ $totalTasks }}</span>
                     </div>
                     <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
-                        <div class="bg-primary h-full rounded-full transition-all duration-1000" style="width: {{ $progress }}%"></div>
+                        <div class="{{ $project->status === 'active' ? 'bg-primary' : 'bg-secondary' }} h-full rounded-full transition-all duration-1000" style="width: {{ $progress }}%"></div>
                     </div>
                     <div class="flex justify-between items-center pt-4">
                         <div class="flex -space-x-3">
@@ -73,49 +70,13 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="flex items-center gap-1.5 text-error font-bold text-xs">
+                        <div class="flex items-center gap-1.5 {{ $project->status === 'active' ? 'text-error' : 'text-outline' }} font-bold text-xs">
                             <span class="material-symbols-outlined text-sm">calendar_today</span>
-                            {{ $project->deadline ? \date('M d', \strtotime($project->deadline)) : 'No deadline' }}
+                            {{ $project->deadline ? \date('M d, Y', \strtotime($project->deadline)) : 'No deadline' }}
                         </div>
                     </div>
                 </div>
-            </div>
-            @else
-            <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex justify-between items-start mb-6">
-                    <div class="w-12 h-12 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[28px]">folder</span>
-                    </div>
-                    <span class="px-2 py-1 bg-primary/10 text-primary text-[10px] rounded-md font-bold uppercase tracking-widest">
-                        {{ $project->status }}
-                    </span>
-                </div>
-                <h3 class="text-xl font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">
-                    {{ $project->title }}
-                </h3>
-                <p class="text-sm text-on-surface-variant mb-6 line-clamp-2">
-                    {{ $project->description ?? 'No description available.' }}
-                </p>
-                <div class="space-y-4">
-                    @php
-                        $totalTasks = $project->tasks->count();
-                        $completedTasks = $project->tasks->where('status', 'done')->count();
-                        $progress = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
-                    @endphp
-                    <div class="flex justify-between items-center text-xs font-bold uppercase tracking-tight">
-                        <span class="text-outline">Tasks</span>
-                        <span class="text-on-surface">{{ $completedTasks }} / {{ $totalTasks }}</span>
-                    </div>
-                    <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
-                        <div class="bg-primary h-full rounded-full" style="width: {{ $progress }}%"></div>
-                    </div>
-                    <div class="pt-4 flex items-center gap-1.5 text-outline font-bold text-xs">
-                        <span class="material-symbols-outlined text-sm">schedule</span>
-                        {{ $project->deadline ? \date('M d, Y', \strtotime($project->deadline)) : 'No deadline' }}
-                    </div>
-                </div>
-            </div>
-            @endif
+            </a>
         @empty
         <div class="col-span-full bg-white border border-outline-variant rounded-xl p-12 flex flex-col items-center justify-center text-center">
             <div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
@@ -128,15 +89,5 @@
             </a>
         </div>
         @endforelse
-
-        @if($projects->count() < 4)
-        <a href="{{ route('projects.create') }}" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-white hover:border-primary transition-all group cursor-pointer">
-            <div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-outline group-hover:bg-primary/10 group-hover:text-primary mb-4 transition-all">
-                <span class="material-symbols-outlined text-3xl">add_circle</span>
-            </div>
-            <p class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">Initiate Project</p>
-            <p class="text-xs text-outline px-4 mt-2 leading-relaxed">Start a new workflow and assign your core development team.</p>
-        </a>
-        @endif
     </div>
 @endsection

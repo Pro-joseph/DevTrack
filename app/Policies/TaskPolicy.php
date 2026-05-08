@@ -4,63 +4,79 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Voir les tâches (tous ou d'un projet spécifique)
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, $project = null): bool
     {
-        return false;
+        if (!$project) {
+            return $user->projects()->exists();
+        }
+
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->exists();
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Voir cette tâche (membres du projet, lead, ou assignee)
      */
     public function view(User $user, Task $task): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Créer une tâche (lead du projet)
      */
-    public function create(User $user): bool
+    public function create(User $user, $project): bool
     {
-        return false;
+        return $this->isLead($user, $project);
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Modifier cette tâche (lead du projet)
      */
     public function update(User $user, Task $task): bool
     {
-        return false;
+        return $this->isLead($user, $task->project);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Changer le statut (lead du projet OU developer assigné)
+     */
+    public function updateStatus(User $user, Task $task): bool
+    {
+        if ($this->isLead($user, $task->project)) {
+            return true;
+        }
+
+        return $task->user_id === $user->id || $task->assigned_to === $user->id;
+    }
+
+    /**
+     * Supprimer cette tâche (lead du projet)
      */
     public function delete(User $user, Task $task): bool
     {
-        return false;
+        return $this->isLead($user, $task->project);
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Vérifie si l'user est lead de ce projet
      */
-    public function restore(User $user, Task $task): bool
+    private function isLead(User $user, $project): bool
     {
-        return false;
-    }
+        if ($project->owner && $project->owner->is($user)) {
+            return true;
+        }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Task $task): bool
-    {
-        return false;
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->wherePivot('role', 'lead')
+                       ->exists();
     }
 }

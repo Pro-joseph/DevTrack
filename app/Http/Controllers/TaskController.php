@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TasksRequest;
 use App\Models\Task;
 use App\Models\Project;
-use App\Models\User;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -13,153 +13,160 @@ use Illuminate\Http\RedirectResponse;
 class TaskController extends Controller
 {
     /**
-     * Display a listing of tasks.
+     * US8 — Liste des tâches (tous les projets ou un projet spécifique)
      */
-    public function index(): View
+    public function index(?Project $project = null): View
     {
-        $tasks = Task::with(['project', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if ($project) {
+            $this->authorize('viewAny', [Task::class, $project]);
+
+            $tasks = $project->tasks()
+                             ->with(['assignee'])
+                             ->latest()
+                             ->get();
+
+            return view('tasks.index', compact('project', 'tasks'));
+        }
+
+        $tasks = Task::where(function ($query) {
+                         $query->where('assigned_to', auth()->id())
+                               ->orWhere('user_id', auth()->id());
+                     })
+                     ->with(['project', 'assignee'])
+                     ->latest()
+                     ->get();
 
         return view('tasks.index', compact('tasks'));
     }
 
     /**
-     * Show the form for creating a new task.
+     * US9 — Formulaire de création
      */
-    public function create(?Project $project = null): View
+    public function create(Project $project): View
     {
-        $projects = Project::with(['owner', 'members'])
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhereHas('members', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    });
-            })
-            ->get();
+        $this->authorize('create', [Task::class, $project]);
 
-        $teamMembers = collect();
-        foreach ($projects as $projectItem) {
-            foreach ($projectItem->members as $member) {
-                if ($member->id !== auth()->id()) {
-                    $teamMembers->push($member);
-                }
-            }
-            if ($projectItem->owner->id !== auth()->id()) {
-                $teamMembers->push($projectItem->owner);
-            }
-        }
-        $users = $teamMembers->unique('id')->values();
+        $members = $project->members;
 
-        $selectedProjectId = $project?->id ?? $projects->first()?->id;
-
-        return view('edit', compact('projects', 'users', 'selectedProjectId'));
+        return view('tasks.create', compact('project', 'members'));
     }
 
     /**
-     * Store a newly created task in storage.
+     * US9 — Sauvegarder une nouvelle tâche
      */
-    public function store(TasksRequest $request): RedirectResponse
+    public function store(StoreTaskRequest $request, Project $project): RedirectResponse
     {
-        $validated = $request->validated();
+        $this->authorize('create', [Task::class, $project]);
 
-        $task = Task::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
-            'project_id' => $validated['project_id'],
-            'priority' => $validated['priority'] ?? 'medium',
-            'status' => $validated['status'] ?? 'todo',
-            'deadline' => $validated['deadline'] ?? null,
-            'user_id' => $validated['assigned_to'] ?? null,
+        $project->tasks()->create($request->validated());
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Tâche créée avec succès !');
+    }
+
+    /**
+     * US10 — Formulaire de modification
+     */
+    public function edit(Project $project, Task $task): View
+    {
+        $this->authorize('view', $task);
+        $this->authorize('updateStatus', $task);
+
+        $canFullUpdate = auth()->user()->id === $project->user_id ||
+            $project->members()->where('user_id', auth()->id())->wherePivot('role', 'lead')->exists();
+
+        $members = $project->members;
+
+        return view('tasks.edit', compact('project', 'task', 'members', 'canFullUpdate'))->with('canUpdate', $canFullUpdate);
+    }
+
+    /**
+     * US10 — Mettre à jour une tâche
+     */
+    public function update(UpdateTaskRequest $request, Project $project, Task $task): RedirectResponse
+    {
+        $isLead = auth()->user()->id === $project->user_id || 
+            $project->members()->where('user_id', auth()->id())->wherePivot('role', 'lead')->exists();
+        
+        $isAssignee = $task->user_id === auth()->id() || $task->assigned_to === auth()->id();
+
+        if (!$isLead && !$isAssignee) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($isAssignee && !$isLead) {
+            $request->validate([
+                'status' => ['required', 'in:todo,in_progress,done'],
+            ]);
+            $task->update(['status' => $request->status]);
+            return redirect()
+                ->back()
+                ->with('success', 'Statut mis à jour !');
+        }
+
+        $task->update($request->validated());
+
+        return redirect()
+            ->route('tasks.index', $project)
+            ->with('success', 'Tâche mise à jour !');
+    }
+
+    /**
+     * US11 — Changer le statut (developer assigné)
+     */
+    public function updateStatus(Request $request, Project $project, Task $task): RedirectResponse
+    {
+        $this->authorize('updateStatus', $task);
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:todo,in_progress,done'],
         ]);
 
-        return redirect()->route('projects.index')->with('success', 'Task created successfully!');
+        $task->update(['status' => $validated['status']]);
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Statut mis à jour !');
     }
 
     /**
-     * Show the form for editing the specified task.
+     * US12 — Supprimer une tâche
      */
-    public function edit(int $id): View
+    public function destroy(Project $project, Task $task): RedirectResponse
     {
-        $task = Task::findOrFail($id);
+        $this->authorize('delete', $task);
 
-        $projects = Project::with(['owner', 'members'])
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhereHas('members', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    });
-            })
-            ->get();
-
-        $teamMembers = collect();
-        foreach ($projects as $project) {
-            foreach ($project->members as $member) {
-                if ($member->id !== auth()->id()) {
-                    $teamMembers->push($member);
-                }
-            }
-            if ($project->owner->id !== auth()->id()) {
-                $teamMembers->push($project->owner);
-            }
-        }
-        $users = $teamMembers->unique('id')->values();
-
-        return view('edit', compact('task', 'projects', 'users'));
-    }
-
-    /**
-     * Update the specified task in storage.
-     */
-    public function update(TasksRequest $request, int $id): RedirectResponse
-    {
-        $task = Task::findOrFail($id);
-        $validated = $request->validated();
-
-        $task->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
-            'project_id' => $validated['project_id'],
-            'priority' => $validated['priority'] ?? $task->priority,
-            'status' => $validated['status'] ?? $task->status,
-            'deadline' => $validated['deadline'] ?? null,
-            'user_id' => $validated['assigned_to'] ?? null,
-        ]);
-
-        return redirect()->route('projects.show', $task->project)
-            ->with('success', 'Task updated successfully!');
-    }
-
-    /**
-     * Remove the specified task from storage.
-     */
-    public function destroy(int $id): RedirectResponse
-    {
-        $task = Task::withTrashed()->findOrFail($id);
-        $task->forceDelete();
-
-        return redirect()->back()->with('success', 'Task deleted permanently!');
-    }
-
-    /**
-     * Archive a task.
-     */
-    public function archive(int $id): RedirectResponse
-    {
-        $task = Task::findOrFail($id);
         $task->delete();
 
-        return redirect()->route('tasks.index')->with('success', 'Task archived successfully!');
+        return redirect()
+            ->route('projects.tasks.index', $project)
+            ->with('success', 'Tâche supprimée !');
     }
 
     /**
-     * Restore an archived task.
+     * Archiver une tâche
      */
-    public function restore(int $id): RedirectResponse
+    public function archive(Project $project, Task $task): RedirectResponse
     {
-        $task = Task::withTrashed()->findOrFail($id);
+        $this->authorize('delete', $task);
+
+        $task->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Tâche archivée !');
+    }
+
+    /**
+     * Restaurer une tâche
+     */
+    public function restore(Task $task): RedirectResponse
+    {
         $task->restore();
 
-        return redirect()->route('archives.index')->with('success', 'Task restored successfully!');
+        return redirect()
+            ->back()
+            ->with('success', 'Tâche restaurée !');
     }
 }

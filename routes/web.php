@@ -15,12 +15,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class)->except(['destroy']);
 
     // Actions spéciales
-    Route::patch('projects/{id}/restore', [ProjectController::class, 'restore'])
+    Route::patch('projects/{project}/restore', [ProjectController::class, 'restore'])
         ->name('projects.restore');
-    Route::post('projects/{id}/archive', [ProjectController::class, 'archive'])
+    Route::post('projects/{project}/archive', [ProjectController::class, 'archive'])
         ->name('projects.archive');
-    Route::delete('projects/{id}', [ProjectController::class, 'destroy'])
-        ->name('projects.destroy');
+    Route::delete('projects/{project}/force-delete', function (Project $project) {
+        $project->forceDelete();
+        return redirect()->route('projects.index')->with('success', 'Projet supprimé définitivement !');
+    })->name('projects.force-delete')
+      ->middleware('auth')
+      ->withTrashed();
 
     // Project Team Members
     Route::get('/projects/{project}/team', [App\Http\Controllers\TeamController::class, 'projectTeam'])
@@ -32,13 +36,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/dashboard', function () {
-    $projects = Project::with(['owner', 'members', 'tasks.user'])
+    $projects = Project::withoutGlobalScopes()
+        ->with(['owner', 'members', 'tasks.user'])
+        ->whereHas('members', fn($q) => $q->withoutGlobalScopes()->where('user_id', auth()->id()))
+        ->whereNull('deleted_at')
         ->latest()
         ->get();
 
     $totalProjects = $projects->count();
     $activeProjects = $projects->where('status', '!=', 'archived')->count();
-    $totalTasks = Task::count();
+    $totalTasks = $projects->flatMap->tasks->count();
 
     return view('dashboard', compact('projects', 'totalProjects', 'activeProjects', 'totalTasks'));
 })->middleware(['auth'])->name('dashboard');
@@ -68,27 +75,44 @@ Route::middleware('auth')->group(function () {
             ->get();
 
         $archivedTasks = \App\Models\Task::onlyTrashed()
-            ->with(['project', 'user'])
+            ->with(['project', 'user', 'assignee'])
+            ->whereHas('project', function ($query) {
+                $query->whereNull('deleted_at');
+            })
             ->latest()
             ->get();
 
         return view('archives.index', compact('archivedProjects', 'archivedTasks'));
     })->middleware(['auth'])->name('archives.index');
 
-    Route::get('/task/new', [TaskController::class, 'create'])->name('tasks.create');
     Route::get('/project/{project}/task/new', [TaskController::class, 'create'])->name('tasks.create');
 
-    Route::post('/task/new', [TaskController::class, 'store'])->name('tasks.store');
+    Route::post('/project/{project}/task/new', [TaskController::class, 'store'])->name('tasks.store');
 
-    Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::get('/project/{project}/task/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::get('/project/{project}/task/{task}', function ($project, $task) {
+        return redirect()->route('tasks.edit', [$project, $task]);
+    })->name('tasks.show');
 
-    Route::put('/task/{id}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::put('/project/{project}/task/{task}', [TaskController::class, 'update'])->name('tasks.update');
 
-    Route::post('/task/{id}/archive', [TaskController::class, 'archive'])
+    Route::match(['POST', 'PUT'], '/project/{project}/task/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+
+    Route::post('/project/{project}/task/{task}/archive', [TaskController::class, 'archive'])
         ->name('tasks.archive');
 
-    Route::delete('/task/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::delete('/project/{project}/task/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
-    Route::patch('/task/{id}/restore', [TaskController::class, 'restore'])
+    Route::patch('/project/{project}/task/{task}/restore', [TaskController::class, 'restore'])
         ->name('tasks.restore');
+
+    Route::patch('/task/{task}/restore', function (\App\Models\Task $task) {
+        $task->restore();
+        return redirect()->back()->with('success', 'Tâche restaurée !');
+    })->name('tasks.restore-simple');
+
+    Route::delete('/task/{task}', function (\App\Models\Task $task) {
+        $task->forceDelete();
+        return redirect()->back()->with('success', 'Tâche supprimée définitivement !');
+    })->name('tasks.force-delete');
 });
