@@ -2,22 +2,6 @@
 
 A Laravel-based project management and task tracking application for teams. DevTrack helps you organize projects, manage tasks, and collaborate with team members efficiently.
 
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-- [Database Schema](#database-schema)
-- [Testing](#testing)
-- [Available Commands](#available-commands)
-- [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 
@@ -64,7 +48,7 @@ A Laravel-based project management and task tracking application for teams. DevT
 | Framework | Laravel 13 |
 | Language | PHP 8.3+ |
 | Frontend | Tailwind CSS, Alpine.js |
-| Database | SQLite (default), MySQL, PostgreSQL |
+| Database | MySQL |
 | Build Tool | Vite |
 | Testing | Pest PHP |
 | Authentication | Laravel Breeze |
@@ -95,7 +79,7 @@ devtrack/
 - PHP 8.3 or higher
 - Composer
 - Node.js 18+ and npm
-- SQLite (default) or MySQL/PostgreSQL
+- MySQL
 
 ## Installation
 
@@ -122,7 +106,7 @@ devtrack/
 
 5. **Configure database**
    
-   For SQLite (default):
+   For Mysql:
    ```bash
    touch database/database.sqlite
    ```
@@ -197,36 +181,6 @@ npm run dev
 | GET | `/api/projects/{project}/tasks` | List all tasks for a project |
 | GET | `/api/projects/{project}/tasks/{task}` | Get a specific task |
 
-### Web Routes
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Redirect to dashboard |
-| GET | `/dashboard` | Main dashboard |
-| GET | `/login` | Login page |
-| POST | `/login` | Handle login |
-| GET | `/register` | Registration page |
-| POST | `/register` | Handle registration |
-| POST | `/logout` | Handle logout |
-| GET | `/projects` | List projects |
-| POST | `/projects` | Create project |
-| GET | `/projects/{project}` | View project |
-| GET | `/projects/{project}/edit` | Edit project |
-| PUT | `/projects/{project}` | Update project |
-| POST | `/projects/{project}/archive` | Archive project |
-| PATCH | `/projects/{project}/restore` | Restore project |
-| DELETE | `/projects/{project}` | Delete project |
-| GET | `/tasks` | List all tasks |
-| GET | `/task/new` | Create task page |
-| POST | `/task/new` | Create task |
-| GET | `/task/{task}/edit` | Edit task |
-| PUT | `/task/{task}` | Update task |
-| POST/PUT | `/task/{task}/status` | Update task status |
-| POST | `/task/{task}/archive` | Archive task |
-| DELETE | `/task/{task}` | Delete task |
-| PATCH | `/task/{task}/restore` | Restore task |
-| GET | `/team` | Team management |
-| GET | `/archives` | View archived items |
 
 ## Database Schema
 
@@ -278,20 +232,23 @@ php artisan route:list
 
 The application includes the following pages:
 - **Dashboard** - Overview of all projects and tasks with statistics
+
 - **Projects** - List, create, edit, view projects
+
 - **Tasks** - Full task management interface
+
 - **Team** - Manage team members across projects
+
 - **Archives** - View and restore deleted items
-- **Profile** - User profile and password management
+
+
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
+Thanks to: 
+```
+https://github.com/farahar2 & https://github.com/Pro-joseph
+```
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
