@@ -1,6 +1,6 @@
 # DevTrack
 
-A Laravel-based project management and task tracking application for teams. DevTrack helps you organize projects, manage tasks, and collaborate with team members efficiently.
+DevTrack Laravel — outil de gestion de projets et tâches pour équipes de développement. Un Team Lead crée des projets, invite des développeurs, et assigne des tâches. Les développeurs voient uniquement les projets dont ils font partie et mettent à jour leurs propres tâches. Pense mini Jira — sans la complexité.
 
 
 ## Features
