@@ -148,7 +148,7 @@ Key configuration options in `.env`:
 | `APP_ENV` | Application environment | local |
 | `APP_DEBUG` | Enable debug mode | true |
 | `APP_URL` | Application URL | http://localhost |
-| `DB_CONNECTION` | Database driver | sqlite |
+| `DB_CONNECTION` | Database driver | Mysql |
 
 
 ## Running the Application
