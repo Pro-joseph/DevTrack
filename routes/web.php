@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
 use App\Models\Project;
@@ -98,9 +99,6 @@ Route::middleware('auth')->group(function () {
 
     Route::match(['POST', 'PUT'], '/project/{project}/task/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 
-    Route::post('/project/{project}/task/{task}/archive', [TaskController::class, 'archive'])
-        ->name('tasks.archive');
-
     Route::delete('/project/{project}/task/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
     Route::patch('/project/{project}/task/{task}/restore', [TaskController::class, 'restore'])
@@ -111,8 +109,15 @@ Route::middleware('auth')->group(function () {
         return redirect()->back()->with('success', 'Tâche restaurée !');
     })->name('tasks.restore-simple');
 
-    Route::delete('/task/{task}', function (\App\Models\Task $task) {
+    Route::delete('/task/{task}/permanent', function (\App\Models\Task $task) {
+        Gate::authorize('forceDelete', $task);
         $task->forceDelete();
         return redirect()->back()->with('success', 'Tâche supprimée définitivement !');
     })->name('tasks.force-delete');
+
+    Route::delete('/task/{task}', function (\App\Models\Task $task) {
+        Gate::authorize('delete', $task);
+        $task->delete();
+        return redirect()->route('tasks.index')->with('success', 'Tâche supprimée !');
+    })->name('tasks.destroy-simple');
 });

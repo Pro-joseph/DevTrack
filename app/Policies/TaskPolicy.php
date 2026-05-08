@@ -66,6 +66,14 @@ class TaskPolicy
     }
 
     /**
+     * Supprimer définitivement une tâche (lead du projet)
+     */
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return $this->isLead($user, $task->project);
+    }
+
+    /**
      * Vérifie si l'user est lead de ce projet
      */
     private function isLead(User $user, $project): bool

@@ -140,7 +140,7 @@ class TaskController extends Controller
         $task->delete();
 
         return redirect()
-            ->route('projects.tasks.index', $project)
+            ->route('tasks.index')
             ->with('success', 'Tâche supprimée !');
     }
 
